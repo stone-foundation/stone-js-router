@@ -3,8 +3,8 @@ import { MetaPipe, NextPipe } from '@stone-js/pipeline'
 import { RouterEventHandler } from '../RouterEventHandler'
 import { GROUP_KEY, MATCH_KEY } from '../decorators/constants'
 import { RouterCommand, routerCommandOptions } from '../commands/RouterCommand'
-import { ConfigContext, IBlueprint, ClassType, hasMetadata, getMetadata } from '@stone-js/core'
-import { EventHandlerClass, IIncomingEvent, NodeCliAdapterConfig, RouteDefinition } from '../declarations'
+import { EventHandlerClass, IIncomingEvent, RouteDefinition } from '../declarations'
+import { BlueprintContext, IBlueprint, ClassType, hasMetadata, getMetadata } from '@stone-js/core'
 
 /**
  * Middleware to process and register route definitions from modules.
@@ -22,8 +22,8 @@ export async function RouteDefinitionsMiddleware<
   IncomingEventType extends IIncomingEvent,
   OutgoingResponseType = unknown
 > (
-  context: ConfigContext<IBlueprint, EventHandlerClass<IncomingEventType, OutgoingResponseType>>,
-  next: NextPipe<ConfigContext<IBlueprint, EventHandlerClass<IncomingEventType, OutgoingResponseType>>, IBlueprint>
+  context: BlueprintContext<IBlueprint, EventHandlerClass<IncomingEventType, OutgoingResponseType>>,
+  next: NextPipe<BlueprintContext<IBlueprint, EventHandlerClass<IncomingEventType, OutgoingResponseType>>, IBlueprint>
 ): Promise<IBlueprint> {
   context
     .modules
@@ -52,10 +52,10 @@ export async function RouteDefinitionsMiddleware<
  * ```
  */
 export async function SetRouterEventHandlerMiddleware (
-  context: ConfigContext<IBlueprint, ClassType>,
-  next: NextPipe<ConfigContext<IBlueprint, ClassType>, IBlueprint>
+  context: BlueprintContext<IBlueprint, ClassType>,
+  next: NextPipe<BlueprintContext<IBlueprint, ClassType>, IBlueprint>
 ): Promise<IBlueprint> {
-  context.blueprint.set('stone.handler', { module: RouterEventHandler, isClass: true })
+  context.blueprint.set('stone.kernel.eventHandler', { module: RouterEventHandler, isClass: true })
 
   return await next(context)
 }
@@ -73,17 +73,12 @@ export async function SetRouterEventHandlerMiddleware (
  * ```
  */
 export const SetRouterCommandsMiddleware = async (
-  context: ConfigContext<IBlueprint, ClassType>,
-  next: NextPipe<ConfigContext<IBlueprint, ClassType>, IBlueprint>
+  context: BlueprintContext<IBlueprint, ClassType>,
+  next: NextPipe<BlueprintContext<IBlueprint, ClassType>, IBlueprint>
 ): Promise<IBlueprint> => {
-  context
-    .blueprint
-    .get<NodeCliAdapterConfig[]>('stone.adapters', [])
-    .filter(adapter => adapter.platform === NODE_CONSOLE_PLATFORM)
-    .map(adapter => {
-      adapter.commands.push({ options: routerCommandOptions, isClass: true, module: RouterCommand })
-      return adapter
-    })
+  if (context.blueprint.get<string>('stone.adapter.platform') === NODE_CONSOLE_PLATFORM) {
+    context.blueprint.add('stone.adapter.commands', [{ options: routerCommandOptions, isClass: true, module: RouterCommand }])
+  }
 
   return await next(context)
 }
@@ -102,8 +97,8 @@ export const SetRouterCommandsMiddleware = async (
  * });
  * ```
  */
-export const routeConfigMiddleware: Array<MetaPipe<ConfigContext<IBlueprint, ClassType>, IBlueprint>> = [
+export const routeConfigMiddleware: Array<MetaPipe<BlueprintContext<IBlueprint, ClassType>, IBlueprint>> = [
   { module: RouteDefinitionsMiddleware, priority: 3 },
   { module: SetRouterCommandsMiddleware, priority: 5 },
-  { module: SetRouterEventHandlerMiddleware, priority: 2 }
+  { module: SetRouterEventHandlerMiddleware, priority: 3 }
 ]

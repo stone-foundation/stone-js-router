@@ -1,6 +1,6 @@
 import { Router } from './Router'
 import { IEventHandler } from '@stone-js/core'
-import { IOutgoingResponse, StoneIncomingEvent } from './declarations'
+import { StoneIncomingEvent } from './declarations'
 
 /**
  * Options for configuring the router.
@@ -23,21 +23,6 @@ export class RouterEventHandler<
   OutgoingResponseType = unknown
 > implements IEventHandler<IncomingEventType, OutgoingResponseType> {
   private readonly router: Router<IncomingEventType, OutgoingResponseType>
-
-  /**
-   * Factory method for creating a RouterEventHandler instance.
-   *
-   * @param options - Configuration options for the RouterEventHandler.
-   * @returns A new `RouterEventHandler` instance.
-   */
-  static create<
-    IncomingEventType extends StoneIncomingEvent = StoneIncomingEvent,
-    OutgoingResponseType extends IOutgoingResponse = IOutgoingResponse
-  >(
-    options: RouterEventHandlerOptions<IncomingEventType, OutgoingResponseType>
-  ): RouterEventHandler<IncomingEventType, OutgoingResponseType> {
-    return new this(options)
-  }
 
   /**
    * Constructs a `RouterEventHandler` instance.

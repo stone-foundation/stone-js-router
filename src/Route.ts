@@ -1,8 +1,3 @@
-import { methodMatcher } from './matchers'
-import { RouterError } from './errors/RouterError'
-import { RouteNotFoundError } from './errors/RouteNotFoundError'
-import { isFunctionPipe, MetaPipe, MixedPipe } from '@stone-js/pipeline'
-import { isMetaComponentModule, uriConstraints, uriRegex } from './utils'
 import {
   isNotEmpty,
   Promiseable,
@@ -22,13 +17,18 @@ import {
   RouteParams,
   BindingValue,
   DispacheClass,
+  DispacherType,
   IIncomingEvent,
   RouteDefinition,
   GenerateOptions,
   DependencyResolver,
-  RouteSegmentConstraint,
-  DispacherType
+  RouteSegmentConstraint
 } from './declarations'
+import { methodMatcher } from './matchers'
+import { RouterError } from './errors/RouterError'
+import { RouteNotFoundError } from './errors/RouteNotFoundError'
+import { isFunctionPipe, MetaPipe, MixedPipe } from '@stone-js/pipeline'
+import { isMetaComponentModule, uriConstraints, uriRegex } from './utils'
 
 /**
  * Defines the options for creating a `Route` instance.

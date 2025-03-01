@@ -1,7 +1,7 @@
 import { Route } from './Route'
 import { MatcherOptions } from './matchers'
 import { MixedPipe, PipeType } from '@stone-js/pipeline'
-import { AdapterConfig, Event, FunctionalEventListener, IContainer, IncomingEvent, OutgoingResponse, Promiseable } from '@stone-js/core'
+import { Event, FunctionalEventListener, IContainer, IncomingEvent, OutgoingResponse, Promiseable } from '@stone-js/core'
 
 /**
  * Parameters passed in a route.
@@ -471,7 +471,6 @@ export interface RouterOptions<
 export interface NavigateOptions {
   name: string
   hash?: string
-  replace?: boolean
   query?: Record<string, string>
   params?: Record<string, string>
 }
@@ -572,11 +571,4 @@ export interface MetaCommandHandler<
   isFactory?: boolean
   options: CommandOptions
   module: CommandHandlerClass<W, X>
-}
-
-/**
- * Configuration interface for the Node Cli Adapter.
- */
-export interface NodeCliAdapterConfig extends AdapterConfig {
-  commands: MetaCommandHandler[]
 }

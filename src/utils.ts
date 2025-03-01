@@ -1,4 +1,12 @@
-import { EventHandlerType, FactoryEventHandler, IIncomingEvent, IOutgoingResponse, MetaEventHandler, RegexPatternOptions, RouteSegmentConstraint } from './declarations'
+import {
+  IIncomingEvent,
+  EventHandlerType,
+  MetaEventHandler,
+  IOutgoingResponse,
+  RegexPatternOptions,
+  FactoryEventHandler,
+  RouteSegmentConstraint
+} from './declarations'
 
 /**
  * Defines a route handler with metadata for the provided handler function.

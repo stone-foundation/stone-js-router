@@ -1,7 +1,3 @@
-import { Route, RouteOptions } from './Route'
-import { RouterError } from './errors/RouterError'
-import { GET, HEAD, HTTP_METHODS } from './constants'
-import { isFunctionModule, isNotEmpty } from '@stone-js/core'
 import {
   IMatcher,
   HttpMethod,
@@ -13,6 +9,10 @@ import {
   DependencyResolver,
   FunctionalEventHandler
 } from './declarations'
+import { Route, RouteOptions } from './Route'
+import { RouterError } from './errors/RouterError'
+import { GET, HEAD, HTTP_METHODS } from './constants'
+import { isFunctionModule, isNotEmpty } from '@stone-js/core'
 
 /**
  * Configuration options for the RouteMapper.

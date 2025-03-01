@@ -15,7 +15,7 @@ export interface RouterServiceProviderOptions {
 export class RouterServiceProvider<
   IncomingEventType extends StoneIncomingEvent = StoneIncomingEvent,
   OutgoingResponseType extends OutgoingResponse = OutgoingResponse
-> implements IServiceProvider<IncomingEventType, OutgoingResponseType> {
+> implements IServiceProvider {
   /**
    * Constructs a new `RouterServiceProvider` instance.
    *

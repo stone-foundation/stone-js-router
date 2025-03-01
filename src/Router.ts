@@ -1,12 +1,3 @@
-import { Route } from './Route'
-import { RouteMapper } from './RouteMapper'
-import { RouteEvent } from './events/RouteEvent'
-import { RouterError } from './errors/RouterError'
-import { RouteCollection } from './RouteCollection'
-import { FunctionalEventListener, isObjectLikeModule } from '@stone-js/core'
-import { RouteNotFoundError } from './errors/RouteNotFoundError'
-import { DELETE, GET, NAVIGATION_EVENT, OPTIONS, PATCH, POST, PUT } from './constants'
-import { isAliasPipe, isClassPipe, isFactoryPipe, MetaPipe, MixedPipe, PipeInstance, Pipeline, PipelineOptions } from '@stone-js/pipeline'
 import {
   HttpMethod,
   RouteParams,
@@ -20,6 +11,16 @@ import {
   FunctionalPageRouteDefinition,
   FunctionalRouteGroupDefinition
 } from './declarations'
+import { Route } from './Route'
+import { RouteMapper } from './RouteMapper'
+import { RouteEvent } from './events/RouteEvent'
+import { RouterError } from './errors/RouterError'
+import { RouteCollection } from './RouteCollection'
+import { FunctionalEventListener, isObjectLikeModule } from '@stone-js/core'
+import { RouteNotFoundError } from './errors/RouteNotFoundError'
+import { DELETE, GET, NAVIGATION_EVENT, OPTIONS, PATCH, POST, PUT } from './constants'
+import { isAliasPipe, isClassPipe, isFactoryPipe, MetaPipe, MixedPipe, PipeInstance, Pipeline, PipelineOptions } from '@stone-js/pipeline'
+
 /**
  * Represents a configurable router for managing HTTP routes and handling incoming events.
  *
@@ -440,9 +441,10 @@ export class Router<
    * Navigates to a specific route in the browser environment.
    *
    * @param pathOrOptions - The path or navigation options, including route name and parameters.
+   * @param replace - Whether to replace the current history entry instead of adding a new one.
    * @throws {RouterError} If called outside a browser environment.
    */
-  navigate (pathOrOptions: string | NavigateOptions): void {
+  navigate (pathOrOptions: string | NavigateOptions, replace?: boolean): void {
     if (window === undefined) {
       throw new RouterError('This method can only be used in a browser environment')
     }
@@ -454,7 +456,7 @@ export class Router<
       path = this.generate({ ...options, withDomain: false })
     }
 
-    options.replace === true
+    replace === true
       ? window.history.replaceState({ ...options, path }, '', path)
       : window.history.pushState({ ...options, path }, '', path)
 
