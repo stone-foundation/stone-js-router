@@ -94,6 +94,7 @@ export class ComponentDispatcher<
       handler.lazy === true &&
       isFunctionModule<LazyComponentEventHandler<IncomingEventType, OutgoingResponseType>>(handler.module)
     ) {
+      handler.lazy = false
       return await handler.module() as HandlerType
     }
     return handler.module as HandlerType

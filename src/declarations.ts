@@ -24,6 +24,11 @@ export type BindingResolver = (key: string, value: unknown, resolver?: Dependenc
 export type IBoundModel = Function & { resolveRouteBinding: BindingResolver }
 
 /**
+ * Represents a bound instance.
+ */
+export type IBoundInstance = Record<string, (key: string, value: unknown) => Promiseable<unknown>>
+
+/**
  * Represents a valid key for dependency binding.
  */
 export type BindingKey = number | boolean | string | Function | object | symbol
@@ -410,7 +415,7 @@ export interface RouteDefinition<
   defaults?: Record<string, unknown>
   rules?: Record<string, RegExp | string>
   redirect?: string | Record<string, unknown> | Function
-  bindings?: Record<string, IBoundModel | BindingResolver>
+  bindings?: Record<string, IBoundModel | BindingResolver | string>
   middleware?: Array<MixedPipe<IncomingEventType, OutgoingResponseType>>
   children?: Array<RouteDefinition<IncomingEventType, OutgoingResponseType>>
   excludeMiddleware?: Array<PipeType<IncomingEventType, OutgoingResponseType>>

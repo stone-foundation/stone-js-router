@@ -19,6 +19,7 @@ import {
   DispacheClass,
   DispacherType,
   IIncomingEvent,
+  IBoundInstance,
   RouteDefinition,
   GenerateOptions,
   DependencyResolver,
@@ -562,6 +563,9 @@ export class Route<IncomingEventType extends IIncomingEvent = IIncomingEvent, Ou
 
     if (typeof bindingResolver === 'function') {
       return bindingResolver(key, value, this.resolver)
+    } else if (typeof bindingOptions === 'string') {
+      const [alias, method = 'resolveRouteBinding'] = bindingOptions.split('@')
+      return this.resolver?.resolve<IBoundInstance>(alias)?.[method](key, value)
     } else {
       throw new RouterError('Binding must be either a class with a static bindingResolver method or a function.')
     }
