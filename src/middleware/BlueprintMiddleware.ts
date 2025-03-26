@@ -97,7 +97,7 @@ export const SetRouterCommandsMiddleware = async (
  * });
  * ```
  */
-export const routeConfigMiddleware: Array<MetaPipe<BlueprintContext<IBlueprint, ClassType>, IBlueprint>> = [
+export const metaRouterBlueprintMiddleware: Array<MetaPipe<BlueprintContext<IBlueprint, ClassType>, IBlueprint>> = [
   { module: RouteDefinitionsMiddleware, priority: 3 },
   { module: SetRouterCommandsMiddleware, priority: 5 },
   { module: SetRouterEventHandlerMiddleware, priority: 3 }

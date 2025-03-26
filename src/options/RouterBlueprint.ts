@@ -2,11 +2,11 @@ import { RouterErrorHandler } from '../RouterErrorHandler'
 import { RouterServiceProvider } from '../RouterServiceProvider'
 import { ClassDispatcher } from '../dispatchers/ClassDispatcher'
 import { RouterOptions, StoneIncomingEvent } from '../declarations'
-import { routeConfigMiddleware } from '../middleware/configMiddleware'
 import { CallableDispatcher } from '../dispatchers/CallableDispatcher'
 import { RedirectDispatcher } from '../dispatchers/RedirectDispatcher'
 import { ComponentDispatcher } from '../dispatchers/ComponentDispatcher'
 import { AppConfig, OutgoingResponse, StoneBlueprint } from '@stone-js/core'
+import { metaRouterBlueprintMiddleware } from '../middleware/BlueprintMiddleware'
 import { hostMatcher, methodMatcher, protocolMatcher, uriMatcher } from '../matchers'
 
 /**
@@ -44,8 +44,8 @@ export interface RouterBlueprint<
  */
 export const routerBlueprint: RouterBlueprint = {
   stone: {
-    builder: {
-      middleware: routeConfigMiddleware
+    blueprint: {
+      middleware: metaRouterBlueprintMiddleware
     },
     kernel: {
       errorHandlers: {

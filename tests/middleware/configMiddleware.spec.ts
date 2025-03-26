@@ -3,7 +3,7 @@ import { NextPipe } from '@stone-js/pipeline'
 import { NODE_CONSOLE_PLATFORM } from '../../src/constants'
 import { RouterCommand, routerCommandOptions } from '../../src/commands/RouterCommand'
 import { ClassType, ConfigContext, getMetadata, hasMetadata, IBlueprint } from '@stone-js/core'
-import { RouteDefinitionsMiddleware, SetRouterCommandsMiddleware } from '../../src/middleware/configMiddleware'
+import { RouteDefinitionsMiddleware, SetRouterCommandsMiddleware } from '../../src/middleware/BlueprintMiddleware'
 
 /* eslint-disable @typescript-eslint/no-extraneous-class */
 

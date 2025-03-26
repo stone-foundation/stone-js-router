@@ -16,7 +16,7 @@ import {
  * @param options - The metadata options for the handler.
  * @returns The defined route handler with metadata.
  */
-export const defineHandler = <U extends IIncomingEvent = IIncomingEvent, V = IOutgoingResponse>(
+export const defineEventHandler = <U extends IIncomingEvent = IIncomingEvent, V = IOutgoingResponse>(
   module: EventHandlerType<U, V>,
   options: Omit<MetaEventHandler<U, V>, 'module'> = {}
 ): MetaEventHandler<U, V> => {
@@ -30,7 +30,7 @@ export const defineHandler = <U extends IIncomingEvent = IIncomingEvent, V = IOu
  * @param module - The module handler function to be defined.
  * @returns The defined factory handler with metadata.
 */
-export const factoryHandler = <U extends IIncomingEvent = IIncomingEvent, V = IOutgoingResponse>(
+export const defineFactoryEventHandler = <U extends IIncomingEvent = IIncomingEvent, V = IOutgoingResponse>(
   module: FactoryEventHandler<U, V>
 ): MetaEventHandler<U, V> => {
   return { module, isFactory: true }
