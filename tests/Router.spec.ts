@@ -322,12 +322,12 @@ describe('Router', () => {
     } as any
 
     expect(router.getCurrentRoute()).toBeTruthy()
-    expect(router.getParameter('name')).toBe('test')
+    expect(router.getParam('name')).toBe('test')
     expect(router.getCurrentRouteName()).toBe('route1')
     expect(router.dumpRoutes()).toEqual({ test: 'test' })
     expect(router.isCurrentRouteNamed('route1')).toBe(true)
     expect(router.hasRoute(['route1', 'route2'])).toBe(true)
-    expect(router.getParameters()).toEqual({ test: 'test' })
+    expect(router.getParams()).toEqual({ test: 'test' })
   })
 
   it('should gather middleware from blueprint and route options', () => {

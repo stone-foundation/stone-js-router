@@ -12,16 +12,15 @@ export interface FallbackOptions extends Omit<DecoratorRouteDefinition, 'methods
 /**
  * A method decorator for defining a fallback HTTP GET route.
  *
- * @param path - The route path for the fallback endpoint.
  * @param options - Optional configuration for the route.
  * @returns A method decorator configured for a fallback GET route.
  *
  * @example
  * ```typescript
- * @Fallback('*')
+ * @Fallback()
  * handleFallback() {
  *   return 'Fallback route';
  * }
  * ```
  */
-export const Fallback = (path: string, options?: FallbackOptions): MethodDecorator => Match(path, { ...options, methods: [GET], fallback: true })
+export const Fallback = (options?: FallbackOptions): MethodDecorator => Match('/:__fallback__(.*)*', { ...options, methods: [GET], fallback: true })

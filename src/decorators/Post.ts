@@ -24,4 +24,4 @@ export interface PostOptions extends Omit<DecoratorRouteDefinition, 'methods'> {
  * }
  * ```
  */
-export const Post = (path: string, options?: PostOptions): MethodDecorator => Match(path, { ...options, methods: [POST] })
+export const Post = (path: string | string[], options?: PostOptions): MethodDecorator => Match(path, { ...options, methods: [POST] })

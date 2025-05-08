@@ -24,4 +24,4 @@ export interface OptionsOptions extends Omit<DecoratorRouteDefinition, 'methods'
  * }
  * ```
  */
-export const Options = (path: string, options?: OptionsOptions): MethodDecorator => Match(path, { ...options, methods: [OPTIONS] })
+export const Options = (path: string | string[], options?: OptionsOptions): MethodDecorator => Match(path, { ...options, methods: [OPTIONS] })

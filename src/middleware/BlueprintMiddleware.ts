@@ -1,10 +1,9 @@
 import { NODE_CONSOLE_PLATFORM } from '../constants'
-import { MetaPipe, NextPipe } from '@stone-js/pipeline'
 import { RouterEventHandler } from '../RouterEventHandler'
 import { GROUP_KEY, MATCH_KEY } from '../decorators/constants'
 import { RouterCommand, routerCommandOptions } from '../commands/RouterCommand'
 import { EventHandlerClass, IIncomingEvent, RouteDefinition } from '../declarations'
-import { BlueprintContext, IBlueprint, ClassType, hasMetadata, getMetadata } from '@stone-js/core'
+import { BlueprintContext, IBlueprint, ClassType, hasMetadata, getMetadata, MetaMiddleware, NextMiddleware } from '@stone-js/core'
 
 /**
  * Middleware to process and register route definitions from modules.
@@ -23,7 +22,7 @@ export async function RouteDefinitionsMiddleware<
   OutgoingResponseType = unknown
 > (
   context: BlueprintContext<IBlueprint, EventHandlerClass<IncomingEventType, OutgoingResponseType>>,
-  next: NextPipe<BlueprintContext<IBlueprint, EventHandlerClass<IncomingEventType, OutgoingResponseType>>, IBlueprint>
+  next: NextMiddleware<BlueprintContext<IBlueprint, EventHandlerClass<IncomingEventType, OutgoingResponseType>>, IBlueprint>
 ): Promise<IBlueprint> {
   context
     .modules
@@ -42,6 +41,9 @@ export async function RouteDefinitionsMiddleware<
 /**
  * Middleware to set the router as the main event handler for the application.
  *
+ * This middleware takes precedence over all other event handlers middleware
+ * expect the console event handler middleware when in console mode.
+ *
  * @param context - The configuration context containing modules and blueprint.
  * @param next - The next function in the pipeline.
  * @returns The updated blueprint.
@@ -53,7 +55,7 @@ export async function RouteDefinitionsMiddleware<
  */
 export async function SetRouterEventHandlerMiddleware (
   context: BlueprintContext<IBlueprint, ClassType>,
-  next: NextPipe<BlueprintContext<IBlueprint, ClassType>, IBlueprint>
+  next: NextMiddleware<BlueprintContext<IBlueprint, ClassType>, IBlueprint>
 ): Promise<IBlueprint> {
   context.blueprint.set('stone.kernel.eventHandler', { module: RouterEventHandler, isClass: true })
 
@@ -74,7 +76,7 @@ export async function SetRouterEventHandlerMiddleware (
  */
 export const SetRouterCommandsMiddleware = async (
   context: BlueprintContext<IBlueprint, ClassType>,
-  next: NextPipe<BlueprintContext<IBlueprint, ClassType>, IBlueprint>
+  next: NextMiddleware<BlueprintContext<IBlueprint, ClassType>, IBlueprint>
 ): Promise<IBlueprint> => {
   if (context.blueprint.get<string>('stone.adapter.platform') === NODE_CONSOLE_PLATFORM) {
     context.blueprint.add('stone.adapter.commands', [{ options: routerCommandOptions, isClass: true, module: RouterCommand }])
@@ -97,8 +99,8 @@ export const SetRouterCommandsMiddleware = async (
  * });
  * ```
  */
-export const metaRouterBlueprintMiddleware: Array<MetaPipe<BlueprintContext<IBlueprint, ClassType>, IBlueprint>> = [
+export const metaRouterBlueprintMiddleware: Array<MetaMiddleware<BlueprintContext<IBlueprint, ClassType>, IBlueprint>> = [
   { module: RouteDefinitionsMiddleware, priority: 3 },
   { module: SetRouterCommandsMiddleware, priority: 5 },
-  { module: SetRouterEventHandlerMiddleware, priority: 3 }
+  { module: SetRouterEventHandlerMiddleware, priority: 5 }
 ]

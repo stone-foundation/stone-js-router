@@ -27,7 +27,7 @@ export interface MatchOptions extends DecoratorRouteDefinition {}
  * }
  * ```
  */
-export const Match = <T extends Function = Function>(path: string, options?: MatchOptions): MethodDecorator => {
+export const Match = <T extends Function = Function>(path: string | string[], options?: MatchOptions): MethodDecorator => {
   return methodDecoratorLegacyWrapper<T>((_target: T, context: ClassMethodDecoratorContext<T>): undefined => {
     addMetadata(context as ClassMethodDecoratorContext, MATCH_KEY, { ...options, path, handler: { action: context.name } })
   })

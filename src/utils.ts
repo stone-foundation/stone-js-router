@@ -1,40 +1,4 @@
-import {
-  IIncomingEvent,
-  EventHandlerType,
-  MetaEventHandler,
-  IOutgoingResponse,
-  RegexPatternOptions,
-  FactoryEventHandler,
-  RouteSegmentConstraint
-} from './declarations'
-
-/**
- * Defines a route handler with metadata for the provided handler function.
- * This function allows users to define a route handler with metadata.
- *
- * @param module - The module handler function to be defined.
- * @param options - The metadata options for the handler.
- * @returns The defined route handler with metadata.
- */
-export const defineEventHandler = <U extends IIncomingEvent = IIncomingEvent, V = IOutgoingResponse>(
-  module: EventHandlerType<U, V>,
-  options: Omit<MetaEventHandler<U, V>, 'module'> = {}
-): MetaEventHandler<U, V> => {
-  return { ...options, module }
-}
-
-/**
- * Defines a factory handler with metadata for the provided handler function.
- * This function allows users to define a factory handler with metadata.
- *
- * @param module - The module handler function to be defined.
- * @returns The defined factory handler with metadata.
-*/
-export const defineFactoryEventHandler = <U extends IIncomingEvent = IIncomingEvent, V = IOutgoingResponse>(
-  module: FactoryEventHandler<U, V>
-): MetaEventHandler<U, V> => {
-  return { module, isFactory: true }
-}
+import { RegexPatternOptions, RouteSegmentConstraint } from './declarations'
 
 /**
  * Check if the provided value is a meta Component module.

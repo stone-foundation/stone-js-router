@@ -84,6 +84,58 @@ export interface StoneIncomingEvent extends IncomingEvent {
 }
 
 /**
+ * Head meta descriptor.
+*/
+export interface HTMLMetaDescriptor {
+  name?: string
+  property?: string
+  content: string
+}
+
+/**
+ * Head link descriptor.
+*/
+export interface HTMLLinkDescriptor {
+  rel: string
+  href: string
+  type?: string
+  media?: string
+  [attr: string]: any // optional: allow custom attributes
+}
+
+/**
+ * Head script descriptor.
+*/
+export interface HTMLScriptDescriptor {
+  src: string
+  type?: string
+  async?: boolean
+  defer?: boolean
+  [attr: string]: any
+}
+
+/**
+ * Head style descriptor.
+*/
+export interface HTMLStyleDescriptor {
+  content: string
+  type?: string
+  media?: string
+}
+
+/**
+ * Head context.
+*/
+export interface HeadContext {
+  title?: string
+  description?: string
+  metas?: HTMLMetaDescriptor[]
+  links?: HTMLLinkDescriptor[]
+  styles?: HTMLStyleDescriptor[]
+  scripts?: HTMLScriptDescriptor[]
+}
+
+/**
  * Defines the structure for route matchers.
  */
 export type IMatcher<
@@ -251,6 +303,7 @@ export interface IComponentEventHandler<
   OutgoingResponseType = unknown
 > {
   render: (options: any) => Promiseable<unknown>
+  head?: (options: any) => Promiseable<HeadContext>
   handle?: FunctionalEventHandler<IncomingEventType, OutgoingResponseType>
 }
 
@@ -414,14 +467,22 @@ export interface RouteDefinition<
   protocol?: string | string[]
   defaults?: Record<string, unknown>
   rules?: Record<string, RegExp | string>
-  redirect?: string | Record<string, unknown> | Function
   bindings?: Record<string, IBoundModel | BindingResolver | string>
+  handler?: MixedEventHandler<IncomingEventType, OutgoingResponseType>
   middleware?: Array<MixedPipe<IncomingEventType, OutgoingResponseType>>
   children?: Array<RouteDefinition<IncomingEventType, OutgoingResponseType>>
   excludeMiddleware?: Array<PipeType<IncomingEventType, OutgoingResponseType>>
-  handler?: MixedEventHandler<IncomingEventType, OutgoingResponseType>
+  redirect?: string | Record<string, unknown> | RouteDefinitionRedirect<IncomingEventType>
   [k: string]: unknown
 }
+
+/**
+ * Represents a route definition redirect function.
+ */
+export type RouteDefinitionRedirect<
+  IncomingEventType extends IIncomingEvent = IIncomingEvent,
+  OutgoingResponseType = unknown
+> = (route: Route<IncomingEventType, OutgoingResponseType>, event: IncomingEventType) => Promiseable<string | Record<string, unknown>>
 
 /**
  * Options for configuring the router.

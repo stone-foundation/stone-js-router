@@ -14,7 +14,7 @@ import { hostMatcher, methodMatcher, protocolMatcher, uriMatcher } from '../matc
  */
 export interface RouterConfig<
   IncomingEventType extends StoneIncomingEvent = StoneIncomingEvent,
-  OutgoingResponseType extends OutgoingResponse = OutgoingResponse
+  OutgoingResponseType = unknown
 > extends RouterOptions<IncomingEventType, OutgoingResponseType> {}
 
 /**
@@ -22,10 +22,10 @@ export interface RouterConfig<
  */
 export interface RouterAppConfig<
   IncomingEventType extends StoneIncomingEvent = StoneIncomingEvent,
-  OutgoingResponseType extends OutgoingResponse = OutgoingResponse
-> extends Partial<AppConfig<IncomingEventType, OutgoingResponseType>> {
+  OutgoingResponseType = unknown
+> extends Partial<AppConfig<IncomingEventType, OutgoingResponse>> {
   /** Router-specific configuration. */
-  router: RouterConfig<IncomingEventType, OutgoingResponseType>
+  router: Partial<RouterConfig<IncomingEventType, OutgoingResponseType>>
 }
 
 /**
@@ -33,8 +33,8 @@ export interface RouterAppConfig<
  */
 export interface RouterBlueprint<
   IncomingEventType extends StoneIncomingEvent = StoneIncomingEvent,
-  OutgoingResponseType extends OutgoingResponse = OutgoingResponse
-> extends StoneBlueprint<IncomingEventType, OutgoingResponseType> {
+  OutgoingResponseType = unknown
+> extends StoneBlueprint<IncomingEventType, OutgoingResponse> {
   /** Configuration and behavior definitions for the router application. */
   stone: RouterAppConfig<IncomingEventType, OutgoingResponseType>
 }

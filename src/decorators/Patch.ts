@@ -24,4 +24,4 @@ export interface PatchOptions extends Omit<DecoratorRouteDefinition, 'methods'> 
  * }
  * ```
  */
-export const Patch = (path: string, options?: PatchOptions): MethodDecorator => Match(path, { ...options, methods: [PATCH] })
+export const Patch = (path: string | string[], options?: PatchOptions): MethodDecorator => Match(path, { ...options, methods: [PATCH] })

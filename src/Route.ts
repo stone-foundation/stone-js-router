@@ -537,6 +537,10 @@ export class Route<IncomingEventType extends IIncomingEvent = IIncomingEvent, Ou
     for (const [i, constraint] of this.uriConstraints.filter(({ param }) => param !== undefined).entries()) {
       let value: unknown = matches?.[i]
 
+      if (constraint.alias !== undefined) {
+        params[constraint.alias] = value ?? constraint.default
+      }
+
       if (constraint.param !== undefined) {
         value = this.hasModelBinding(constraint.param) ? await this.bindValue(constraint.param, value, constraint.alias) : value
         params[constraint.param] = value ?? constraint.default

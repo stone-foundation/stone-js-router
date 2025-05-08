@@ -22,4 +22,4 @@ export interface ControllerOptions extends DecoratorGroupRouteDefinition {}
  * }
  * ```
  */
-export const Controller = (path: string, options?: ControllerOptions): ClassDecorator => EventHandler(path, options)
+export const Controller = (path: string = '/', options?: ControllerOptions): ClassDecorator => EventHandler(path, options)

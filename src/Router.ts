@@ -102,7 +102,7 @@ export class Router<
    * @returns The router instance for chaining.
    */
   options (
-    path: string,
+    path: string | string[],
     handlerOrDefinition:
     | FunctionalEventHandler<IncomingEventType, OutgoingResponseType>
     | FunctionalRouteDefinition<IncomingEventType, OutgoingResponseType>
@@ -118,7 +118,7 @@ export class Router<
    * @returns The router instance for chaining.
    */
   get (
-    path: string,
+    path: string | string[],
     handlerOrDefinition:
     | FunctionalEventHandler<IncomingEventType, OutgoingResponseType>
     | FunctionalRouteDefinition<IncomingEventType, OutgoingResponseType>
@@ -134,7 +134,7 @@ export class Router<
    * @returns The router instance for chaining.
    */
   add (
-    path: string,
+    path: string | string[],
     handlerOrDefinition:
     | FunctionalEventHandler<IncomingEventType, OutgoingResponseType>
     | FunctionalRouteDefinition<IncomingEventType, OutgoingResponseType>
@@ -151,7 +151,7 @@ export class Router<
    * @returns The router instance for chaining.
    */
   page (
-    path: string,
+    path: string | string[],
     definition: FunctionalPageRouteDefinition<IncomingEventType, OutgoingResponseType>
   ): this {
     return this.get(path, definition)
@@ -165,7 +165,7 @@ export class Router<
    * @returns The router instance for chaining.
    */
   post (
-    path: string,
+    path: string | string[],
     handlerOrDefinition:
     | FunctionalEventHandler<IncomingEventType, OutgoingResponseType>
     | FunctionalRouteDefinition<IncomingEventType, OutgoingResponseType>
@@ -181,7 +181,7 @@ export class Router<
    * @returns The router instance for chaining.
    */
   put (
-    path: string,
+    path: string | string[],
     handlerOrDefinition:
     | FunctionalEventHandler<IncomingEventType, OutgoingResponseType>
     | FunctionalRouteDefinition<IncomingEventType, OutgoingResponseType>
@@ -197,7 +197,7 @@ export class Router<
    * @returns The router instance for chaining.
    */
   patch (
-    path: string,
+    path: string | string[],
     handlerOrDefinition:
     | FunctionalEventHandler<IncomingEventType, OutgoingResponseType>
     | FunctionalRouteDefinition<IncomingEventType, OutgoingResponseType>
@@ -213,7 +213,7 @@ export class Router<
    * @returns The router instance for chaining.
    */
   delete (
-    path: string,
+    path: string | string[],
     handlerOrDefinition:
     | FunctionalEventHandler<IncomingEventType, OutgoingResponseType>
     | FunctionalRouteDefinition<IncomingEventType, OutgoingResponseType>
@@ -229,7 +229,7 @@ export class Router<
    * @returns The router instance for chaining.
    */
   any (
-    path: string,
+    path: string | string[],
     handlerOrDefinition:
     | FunctionalEventHandler<IncomingEventType, OutgoingResponseType>
     | FunctionalRouteDefinition<IncomingEventType, OutgoingResponseType>
@@ -258,7 +258,7 @@ export class Router<
    * @returns The current `Router` instance.
    */
   match (
-    path: string,
+    path: string | string[],
     handlerOrDefinition:
     | FunctionalEventHandler<IncomingEventType, OutgoingResponseType>
     | FunctionalRouteDefinition<IncomingEventType, OutgoingResponseType>,
@@ -312,6 +312,9 @@ export class Router<
    */
   configure (options: Partial<RouterOptions<IncomingEventType, OutgoingResponseType>>): this {
     this.routerOptions = { ...this.routerOptions, ...options }
+    this.routes = RouteCollection.create<IncomingEventType, OutgoingResponseType>(
+      this.routeMapper.toRoutes(this.routerOptions.definitions)
+    )
     return this
   }
 
@@ -483,24 +486,11 @@ export class Router<
   }
 
   /**
-   * Checks if the router contains a route with the given name(s).
-   *
-   * @param name - A route name or an array of route names to check.
-   * @returns `true` if at least one of the specified routes exists, `false` otherwise.
-   */
-  hasRoute (name: string | string[]): boolean {
-    return [name]
-      .flat()
-      .filter((v) => this.routes.hasNamedRoute(v))
-      .length > 0
-  }
-
-  /**
    * Retrieves the parameters of the current route.
    *
    * @returns An object containing the parameters of the current route, or `undefined` if no route is active.
    */
-  getParameters (): RouteParams | undefined {
+  getParams (): RouteParams | undefined {
     return this.currentRoute?.params
   }
 
@@ -512,8 +502,21 @@ export class Router<
    * @param fallback - An optional fallback value to return if the parameter is not found.
    * @returns The value of the parameter, or the fallback value if the parameter is not found.
    */
-  getParameter<TReturn = unknown>(name: string, fallback?: TReturn): TReturn | undefined {
+  getParam<TReturn = unknown>(name: string, fallback?: TReturn): TReturn | undefined {
     return this.currentRoute?.getParam(name, fallback)
+  }
+
+  /**
+   * Checks if the router contains a route with the given name(s).
+   *
+   * @param name - A route name or an array of route names to check.
+   * @returns `true` if at least one of the specified routes exists, `false` otherwise.
+   */
+  hasRoute (name: string | string[]): boolean {
+    return [name]
+      .flat()
+      .filter((v) => this.routes.hasNamedRoute(v))
+      .length > 0
   }
 
   /**
@@ -571,7 +574,7 @@ export class Router<
       RouteEvent.create({
         source: this,
         metadata: { event, route },
-        type: RouteEvent.ROUTE_MATCHED
+        type: RouteEvent.ROUTED
       })
     )
     return await this.runRouteWithMiddleware(event, route)
