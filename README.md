@@ -1,6 +1,6 @@
 # Stone.js: Router
 
-[![npm](https://img.shields.io/npm/l/@stone-js/router)](https://opensource.org/licenses/Apache-2.0)
+[![npm](https://img.shields.io/npm/l/@stone-js/browser-core)](https://opensource.org/licenses/MIT)
 [![npm](https://img.shields.io/npm/v/@stone-js/router)](https://www.npmjs.com/package/@stone-js/router)
 [![npm](https://img.shields.io/npm/dm/@stone-js/router)](https://www.npmjs.com/package/@stone-js/router)
 ![Maintenance](https://img.shields.io/maintenance/yes/2025)

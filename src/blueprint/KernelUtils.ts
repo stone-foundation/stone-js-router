@@ -7,8 +7,8 @@ import {
   StoneIncomingEvent,
   FactoryEventHandler,
   FunctionalEventHandler
-} from './declarations'
-import { RouterBlueprint } from './options/RouterBlueprint'
+} from '../declarations'
+import { RouterBlueprint } from '../options/RouterBlueprint'
 
 /**
  * Utility function to define a function-based event handler.
@@ -24,103 +24,101 @@ export function defineEventHandler <U extends IIncomingEvent = IIncomingEvent> (
  * Utility function to define a factory-based event handler.
  *
  * @param module - The EventHandler module.
- * @param isFactory - Indicates if the handler is a factory function. e.g. `true` for a factory function.
+ * @param options - Options to specify the handler type.
+ * @param options.isFactory - Indicates that the handler is a factory function.
  * @returns The MetaEventHandler.
  */
 export function defineEventHandler <U extends IIncomingEvent = IIncomingEvent> (
   module: FactoryEventHandler<U>,
-  isFactory: true
+  options: { isFactory: true }
 ): MetaEventHandler<U>
 
 /**
- * Utility function to define a factory-based event handler.
+ * Utility function to define a class-based event handler.
  *
  * @param module - The EventHandler module.
- * @param isFactory - Indicates if the handler is a factory function. e.g. `false` for a class.
- * @param action - The action name for the event handler.
+ * @param options - Options to specify the handler type.
+ * @param options.isClass - Indicates that the handler is a class.
+ * @param options.action - The action name for the event handler.
  * @returns The MetaEventHandler.
  */
 export function defineEventHandler <U extends IIncomingEvent = IIncomingEvent> (
   module: EventHandlerClass<U>,
-  isFactory: false,
-  action?: string
+  options: { isClass: true, action: string }
 ): MetaEventHandler<U>
 
 /**
  * Utility function to define an event handler.
  *
  * @param module - The EventHandler module.
- * @param isFactory - Indicates if the handler is a factory function. e.g. `true` for a factory function, `false` for a class, or `undefined` for a functional handler.
- * @param action - The action name for the event handler.
- * @returns The StoneBlueprint.
+ * @param options - Optional handler definition options.
+ * @param options.isFactory - Indicates that the handler is a factory function.
+ * @param options.isClass - Indicates that the handler is a class.
+ * @param options.action - The action name for the event handler.
+ * @returns The MetaEventHandler.
  */
 export function defineEventHandler<U extends IIncomingEvent = IIncomingEvent> (
   module: EventHandlerType<U>,
-  isFactory?: boolean,
-  action?: string
+  options?: { isFactory?: boolean, isClass?: boolean, action?: string }
 ): MetaEventHandler<U> {
   return {
-    action,
-    module,
-    isFactory,
-    isClass: isFactory === false
+    ...options,
+    module
   }
 }
 
 /**
  * Utility function to define a route with function-based handler.
  *
- * @param path - The path for the route.
  * @param module - The EventHandler module.
  * @param options - Optional route definition options.
  * @returns The RouterBlueprint.
  */
 export function defineRoute<U extends StoneIncomingEvent = StoneIncomingEvent> (
-  path: string,
   module: FunctionalEventHandler<U>,
-  options?: RouteDefinition<U>
+  options: RouteDefinition<U>
 ): RouterBlueprint<U>
 
 /**
  * Utility function to define a route with factory-based handler.
  *
- * @param path - The path for the route.
  * @param module - The EventHandler module.
- * @param options - Optional route definition options.
+ * @param options - Route definition options with isFactory set to true.
+ * @param options.isFactory - Indicates that the handler is a factory function.
  * @returns The RouterBlueprint.
  */
 export function defineRoute<U extends StoneIncomingEvent = StoneIncomingEvent> (
-  path: string,
   module: FactoryEventHandler<U>,
-  options?: RouteDefinition<U> & { isFactory: true }
+  options: RouteDefinition<U> & { isFactory: true }
 ): RouterBlueprint<U>
 
 /**
  * Utility function to define a route with class-based handler.
  *
- * @param path - The path for the route.
  * @param module - The EventHandler module.
- * @param options - Optional route definition options.
+ * @param options - Route definition options with isClass and action.
+ * @param options.isClass - Indicates that the handler is a class.
+ * @param options.action - The action name for the event handler.
  * @returns The RouterBlueprint.
  */
 export function defineRoute<U extends StoneIncomingEvent = StoneIncomingEvent> (
-  path: string,
   module: EventHandlerClass<U>,
-  options?: RouteDefinition<U> & { isFactory: false, action: string }
+  options: RouteDefinition<U> & { isClass: true, action: string }
 ): RouterBlueprint<U>
 
 /**
  * Utility function to define a route.
  *
- * @param path - The path for the route.
  * @param module - The EventHandler module.
- * @param options - Optional route definition options.
+ * @param options - Route definition options.
+ * @param options.isFactory - Indicates that the handler is a factory function.
+ * @param options.isClass - Indicates that the handler is a class.
+ * @param options.action - The action name for the event handler.
  * @returns The RouterBlueprint.
  */
 export function defineRoute<U extends StoneIncomingEvent = StoneIncomingEvent> (
-  path: string,
   module: EventHandlerType<U>,
-  options?: RouteDefinition<U> & { isFactory?: boolean, action?: string }
+  options: RouteDefinition<U> & { isClass?: boolean, isFactory?: boolean, action?: string }
 ): RouterBlueprint<U> {
   return {
     stone: {
@@ -128,8 +126,7 @@ export function defineRoute<U extends StoneIncomingEvent = StoneIncomingEvent> (
         definitions: [
           {
             ...options,
-            path,
-            handler: { module, action: options?.action, isFactory: options?.isFactory }
+            handler: { module, action: options?.action, isFactory: options?.isFactory, isClass: options?.isClass }
           }
         ]
       }
@@ -144,7 +141,7 @@ export function defineRoute<U extends StoneIncomingEvent = StoneIncomingEvent> (
  * @returns The RouterBlueprint.
  */
 export function defineRoutes<U extends StoneIncomingEvent = StoneIncomingEvent> (
-  routes: Array<[string, FunctionalEventHandler<U>, RouteDefinition<U>] | RouteDefinition<U>>
+  routes: Array<[FunctionalEventHandler<U>, RouteDefinition<U>] | RouteDefinition<U>>
 ): RouterBlueprint<U>
 
 /**
@@ -154,7 +151,7 @@ export function defineRoutes<U extends StoneIncomingEvent = StoneIncomingEvent> 
  * @returns The RouterBlueprint.
  */
 export function defineRoutes<U extends StoneIncomingEvent = StoneIncomingEvent> (
-  routes: Array<[string, FactoryEventHandler<U>, RouteDefinition<U> & { isFactory: true }] | RouteDefinition<U>>
+  routes: Array<[FactoryEventHandler<U>, RouteDefinition<U> & { isFactory: true }] | RouteDefinition<U>>
 ): RouterBlueprint<U>
 
 /**
@@ -164,7 +161,7 @@ export function defineRoutes<U extends StoneIncomingEvent = StoneIncomingEvent> 
  * @returns The RouterBlueprint.
  */
 export function defineRoutes<U extends StoneIncomingEvent = StoneIncomingEvent> (
-  routes: Array<[string, EventHandlerClass<U>, RouteDefinition<U> & { isFactory: false, action: string }] | RouteDefinition<U>>
+  routes: Array<[EventHandlerClass<U>, RouteDefinition<U> & { isClass: true, action: string }] | RouteDefinition<U>>
 ): RouterBlueprint<U>
 
 /**
@@ -174,10 +171,10 @@ export function defineRoutes<U extends StoneIncomingEvent = StoneIncomingEvent> 
  * @returns The RouterBlueprint.
  */
 export function defineRoutes<U extends StoneIncomingEvent = StoneIncomingEvent> (
-  routes: Array<[string, EventHandlerType<U>, RouteDefinition<U> & { isFactory?: boolean, action?: string }] | RouteDefinition<U>>
+  routes: Array<[EventHandlerType<U>, RouteDefinition<U> & { isFactory?: boolean, isClass?: boolean, action?: string }] | RouteDefinition<U>>
 ): RouterBlueprint<U> {
   const definitions = routes.map(v => Array.isArray(v)
-    ? ({ ...v[2], path: v[0], handler: { module: v[1], action: v[2]?.action, isFactory: v[2]?.isFactory } })
+    ? ({ ...v[1], handler: { module: v[0], action: v[1]?.action, isClass: v[1]?.isClass, isFactory: v[1]?.isFactory } })
     : v
   )
 
