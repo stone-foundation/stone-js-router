@@ -1,11 +1,11 @@
 import { Router } from '../../src/Router'
 import { RouterError } from '../../src/errors/RouterError'
-import { IncomingEvent, OutgoingResponse, Container } from '@stone-js/core'
+import { IContainer, IncomingEvent } from '@stone-js/core'
 import { RouterCommand, routerCommandOptions } from '../../src/commands/RouterCommand'
 
 describe('RouterCommand', () => {
   let routerMock: Router
-  let containerMock: Container
+  let containerMock: IContainer
   let routerCommand: RouterCommand
   let incomingEventMock: IncomingEvent
 
@@ -17,9 +17,12 @@ describe('RouterCommand', () => {
       ])
     } as unknown as Router
 
+    // @ts-expect-error - Mocking static method
+    Router.create = vi.fn(() => routerMock)
+
     containerMock = {
-      resolve: vi.fn(() => routerMock)
-    } as unknown as Container
+      make: vi.fn(() => ({ get: vi.fn().mockReturnValue({}) }))
+    } as unknown as IContainer
 
     incomingEventMock = {
       getMetadataValue: vi.fn()
@@ -40,13 +43,13 @@ describe('RouterCommand', () => {
 
     const response = await routerCommand.handle(incomingEventMock)
 
-    expect(containerMock.resolve).toHaveBeenCalledWith(Router)
+    expect(containerMock.make).toHaveBeenCalledWith('blueprint')
     expect(routerMock.dumpRoutes).toHaveBeenCalled()
     expect(consoleTableSpy).toHaveBeenCalledWith([
       { path: '/home', method: 'GET' },
       { path: '/about', method: 'POST' }
     ])
-    expect(response).toBeInstanceOf(OutgoingResponse)
+    expect(response).toBeUndefined()
 
     consoleTableSpy.mockRestore()
   })
@@ -58,10 +61,10 @@ describe('RouterCommand', () => {
 
     const response = await routerCommand.handle(incomingEventMock)
 
-    expect(containerMock.resolve).not.toHaveBeenCalled()
+    expect(containerMock.make).not.toHaveBeenCalled()
     expect(routerMock.dumpRoutes).not.toHaveBeenCalled()
     expect(consoleTableSpy).not.toHaveBeenCalled()
-    expect(response).toBeInstanceOf(OutgoingResponse)
+    expect(response).toBeUndefined()
 
     consoleTableSpy.mockRestore()
   })

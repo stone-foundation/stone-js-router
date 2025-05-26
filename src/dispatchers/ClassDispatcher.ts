@@ -1,5 +1,3 @@
-import { Route } from '../Route'
-import { RouterError } from '../errors/RouterError'
 import {
   isNotEmpty,
   isMetaClassModule,
@@ -17,6 +15,8 @@ import {
   DispatcherContext,
   DependencyResolver
 } from '../declarations'
+import { Route } from '../Route'
+import { RouterError } from '../errors/RouterError'
 
 /**
  * ClassDispatcher
@@ -86,11 +86,10 @@ export class ClassDispatcher<
 
   private getAction (
     handler?: MixedEventHandler<IncomingEventType, OutgoingResponseType>
-  ): string {
+  ): string | undefined {
     if (isObjectLikeModule<MetaEventHandler<IncomingEventType, OutgoingResponseType>>(handler)) {
       return handler.action ?? 'handle'
     }
-    return 'handle'
   }
 
   private resolveModule <T extends BindingValue>(Class: BindingKey): T {

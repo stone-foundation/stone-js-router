@@ -30,7 +30,7 @@ export function defineEventHandler <U extends IIncomingEvent = IIncomingEvent> (
  */
 export function defineEventHandler <U extends IIncomingEvent = IIncomingEvent> (
   module: FactoryEventHandler<U>,
-  options: { isFactory: true }
+  options: { isFactory: true, isClass?: undefined, action?: string }
 ): MetaEventHandler<U>
 
 /**
@@ -44,7 +44,7 @@ export function defineEventHandler <U extends IIncomingEvent = IIncomingEvent> (
  */
 export function defineEventHandler <U extends IIncomingEvent = IIncomingEvent> (
   module: EventHandlerClass<U>,
-  options: { isClass: true, action: string }
+  options: { isClass: true, action: string, isFactory?: undefined }
 ): MetaEventHandler<U>
 
 /**
@@ -74,10 +74,10 @@ export function defineEventHandler<U extends IIncomingEvent = IIncomingEvent> (
  * @param options - Optional route definition options.
  * @returns The RouterBlueprint.
  */
-export function defineRoute<U extends StoneIncomingEvent = StoneIncomingEvent> (
+export function defineRoute<U extends IIncomingEvent = IIncomingEvent> (
   module: FunctionalEventHandler<U>,
-  options: RouteDefinition<U>
-): RouterBlueprint<U>
+  options: RouteDefinition<U> & { isFactory?: undefined, isClass?: undefined }
+): RouterBlueprint<StoneIncomingEvent>
 
 /**
  * Utility function to define a route with factory-based handler.
@@ -87,10 +87,10 @@ export function defineRoute<U extends StoneIncomingEvent = StoneIncomingEvent> (
  * @param options.isFactory - Indicates that the handler is a factory function.
  * @returns The RouterBlueprint.
  */
-export function defineRoute<U extends StoneIncomingEvent = StoneIncomingEvent> (
+export function defineRoute<U extends IIncomingEvent = IIncomingEvent> (
   module: FactoryEventHandler<U>,
-  options: RouteDefinition<U> & { isFactory: true }
-): RouterBlueprint<U>
+  options: RouteDefinition<U> & { isFactory: true, isClass?: undefined }
+): RouterBlueprint<StoneIncomingEvent>
 
 /**
  * Utility function to define a route with class-based handler.
@@ -101,10 +101,10 @@ export function defineRoute<U extends StoneIncomingEvent = StoneIncomingEvent> (
  * @param options.action - The action name for the event handler.
  * @returns The RouterBlueprint.
  */
-export function defineRoute<U extends StoneIncomingEvent = StoneIncomingEvent> (
+export function defineRoute<U extends IIncomingEvent = IIncomingEvent> (
   module: EventHandlerClass<U>,
-  options: RouteDefinition<U> & { isClass: true, action: string }
-): RouterBlueprint<U>
+  options: RouteDefinition<U> & { isClass: true, action: string, isFactory?: undefined }
+): RouterBlueprint<StoneIncomingEvent>
 
 /**
  * Utility function to define a route.
@@ -116,16 +116,18 @@ export function defineRoute<U extends StoneIncomingEvent = StoneIncomingEvent> (
  * @param options.action - The action name for the event handler.
  * @returns The RouterBlueprint.
  */
-export function defineRoute<U extends StoneIncomingEvent = StoneIncomingEvent> (
+export function defineRoute<U extends IIncomingEvent = IIncomingEvent> (
   module: EventHandlerType<U>,
   options: RouteDefinition<U> & { isClass?: boolean, isFactory?: boolean, action?: string }
-): RouterBlueprint<U> {
+): RouterBlueprint<any> {
   return {
     stone: {
       router: {
         definitions: [
           {
             ...options,
+            methods: undefined,
+            children: undefined,
             handler: { module, action: options?.action, isFactory: options?.isFactory, isClass: options?.isClass }
           }
         ]
@@ -140,9 +142,9 @@ export function defineRoute<U extends StoneIncomingEvent = StoneIncomingEvent> (
  * @param routes - An array of route definitions, each containing path, module, and options.
  * @returns The RouterBlueprint.
  */
-export function defineRoutes<U extends StoneIncomingEvent = StoneIncomingEvent> (
+export function defineRoutes<U extends IIncomingEvent = IIncomingEvent> (
   routes: Array<[FunctionalEventHandler<U>, RouteDefinition<U>] | RouteDefinition<U>>
-): RouterBlueprint<U>
+): RouterBlueprint<StoneIncomingEvent>
 
 /**
  * Utility function to define multiple routes with factory-based handlers.
@@ -150,19 +152,9 @@ export function defineRoutes<U extends StoneIncomingEvent = StoneIncomingEvent> 
  * @param routes - An array of route definitions, each containing path, module, and options.
  * @returns The RouterBlueprint.
  */
-export function defineRoutes<U extends StoneIncomingEvent = StoneIncomingEvent> (
+export function defineRoutes<U extends IIncomingEvent = IIncomingEvent> (
   routes: Array<[FactoryEventHandler<U>, RouteDefinition<U> & { isFactory: true }] | RouteDefinition<U>>
-): RouterBlueprint<U>
-
-/**
- * Utility function to define multiple routes with class-based handlers.
- *
- * @param routes - An array of route definitions, each containing path, module, and options.
- * @returns The RouterBlueprint.
- */
-export function defineRoutes<U extends StoneIncomingEvent = StoneIncomingEvent> (
-  routes: Array<[EventHandlerClass<U>, RouteDefinition<U> & { isClass: true, action: string }] | RouteDefinition<U>>
-): RouterBlueprint<U>
+): RouterBlueprint<StoneIncomingEvent>
 
 /**
  * Utility function to define multiple routes.
@@ -170,9 +162,9 @@ export function defineRoutes<U extends StoneIncomingEvent = StoneIncomingEvent> 
  * @param routes - An array of route definitions, each containing path, module, and options.
  * @returns The RouterBlueprint.
  */
-export function defineRoutes<U extends StoneIncomingEvent = StoneIncomingEvent> (
+export function defineRoutes<U extends IIncomingEvent = IIncomingEvent> (
   routes: Array<[EventHandlerType<U>, RouteDefinition<U> & { isFactory?: boolean, isClass?: boolean, action?: string }] | RouteDefinition<U>>
-): RouterBlueprint<U> {
+): RouterBlueprint<any> {
   const definitions = routes.map(v => Array.isArray(v)
     ? ({ ...v[1], handler: { module: v[0], action: v[1]?.action, isClass: v[1]?.isClass, isFactory: v[1]?.isFactory } })
     : v

@@ -1,10 +1,12 @@
-import { MetaPipe } from '@stone-js/pipeline'
+import { ClassType } from '@stone-js/core'
 import { uriConstraints } from '../src/utils'
 import { methodMatcher } from '../src/matchers'
 import { RouteOptions, Route } from '../src/Route'
 import { RouterError } from '../src/errors/RouterError'
-import { RouteNotFoundError } from '../src/errors/RouteNotFoundError'
 import { DependencyResolver } from '../src/declarations'
+import { RouteNotFoundError } from '../src/errors/RouteNotFoundError'
+
+/* eslint-disable @typescript-eslint/no-extraneous-class */
 
 // Mock utilities
 vi.mock('../src/utils', async (importOriginal) => {
@@ -100,7 +102,7 @@ describe('Route Options and Booleans', () => {
     expect(route.isStrict()).toBe(false)
     expect(route.isSecure()).toBe(false)
     expect(route.isFallback()).toBe(false)
-    
+
     const secureRoute = Route.create(createRouteOptions({ protocol: 'https', fallback: true, strict: true }))
     expect(secureRoute.isHttpsOnly()).toBe(true)
     expect(secureRoute.isHttpOnly()).toBe(false)
@@ -145,11 +147,11 @@ describe('Route Parameters API', () => {
 
   it('should identify optional parameters based on constraints', () => {
     // @ts-expect-error - Testing private property
-    route.routeParams = { test: 'value', name: 'john' }
-    // name is optional, foo is not
+    route.routeParams = { id: 'value', name: 'john' }
+    // name is optional, id is not
     expect(route.getOptionalParamNames()).toEqual(['name'])
     expect(route.isParamNameOptional('name')).toBe(true)
-    expect(route.isParamNameOptional('foo')).toBe(false)
+    expect(route.isParamNameOptional('id')).toBe(false)
   })
 })
 
@@ -263,14 +265,15 @@ describe('Dispatcher Type Detection (getDispatcherType)', () => {
   })
 
   it('should return "callable" if handler is a factory/function module', () => {
-    const factory = () => {}
-    factory.__factory = true
-    routeOptions.handler = factory
+    routeOptions.handler = { isFactory: true, module: () => () => {} }
     // @ts-expect-error
     expect(route.getDispatcherType()).toBe('callable')
 
-    factory.__factory = false
-    factory.__function = true
+    routeOptions.handler = { module: () => {} }
+    // @ts-expect-error
+    expect(route.getDispatcherType()).toBe('callable')
+
+    routeOptions.handler = () => {}
     // @ts-expect-error
     expect(route.getDispatcherType()).toBe('callable')
   })
@@ -299,21 +302,28 @@ describe('generate()', () => {
     expect(route.generate({ params: { id: '789' }, hash: '#world' })).toBe('/user-789/#world')
   })
 
-  it('should include domain with protocol when `withDomain` is true', () => {
+  it('should include domain with/without protocol when `withDomain` is true', () => {
     // @ts-expect-error
     route.uriConstraints = [
-      { param: 'domain', suffix: 'example.com' },
+      { param: 'domain', suffix: '.example.com' },
       { match: 'u' },
       { param: 'id', prefix: 'id-' }
     ]
 
-    const url = route.generate({
+    let url = route.generate({
       params: { domain: 'www', id: '9' },
       withDomain: true,
       protocol: 'https'
     })
 
-    expect(url).toBe('https://wwwexample.com/u/id-9/')
+    expect(url).toBe('https://www.example.com/u/id-9/')
+
+    url = route.generate({
+      params: { domain: 'www', id: '9' },
+      withDomain: true
+    })
+
+    expect(url).toBe('http://www.example.com/u/id-9/')
   })
 
   it('should throw RouterError if required param is missing', () => {
@@ -359,24 +369,26 @@ describe('bind()', () => {
       static resolveRouteBinding = vi.fn().mockResolvedValue('bound-user')
     }
 
-    routeOptions.bindings = { id: User }
+    routeOptions.bindings = { user: User, name: vi.fn() }
 
     // @ts-expect-error - Testing private property
     route.uriConstraints = [
-      { param: 'id', prefix: 'user-', alias: 'user' },
-      { param: 'name', optional: true }
+      { param: 'user', prefix: 'user-', alias: 'id' },
+      { param: 'name', optional: true, alias: 'profile', default: 34 }
     ]
 
     const mockEvent = {
-      url: new URL('http://localhost/user-42'),
       getUri: () => '/user-42',
-      query: new Map()
+      url: new URL('http://localhost/user-42')
     }
 
     await route.bind(mockEvent as any)
-    expect(route.params.id).toBe('bound-user')
-    expect(route.params.user).toBe(42)
-    expect(User.resolveRouteBinding).toHaveBeenCalledWith('user', 42, undefined)
+    expect(route.params.id).toBe(42)
+    expect(route.params.name).toBe(34)
+    expect(route.params.profile).toBe(34)
+    expect(route.params.user).toBe('bound-user')
+    expect(User.resolveRouteBinding).toHaveBeenCalledWith('id', 42, undefined)
+    expect(routeOptions.bindings.name).toHaveBeenCalledWith('profile', undefined, undefined)
   })
 
   it('should use string alias@method to resolve value via resolver', async () => {
@@ -404,8 +416,7 @@ describe('bind()', () => {
   })
 
   it('should throw RouteNotFoundError if required param is undefined after binding', async () => {
-    // Remove optional flag from 'id'
-    // @ts-expect-error
+    // @ts-expect-error - Remove optional flag from 'id'
     route.uriConstraints = [{ param: 'id' }]
 
     const mockEvent = {
@@ -441,112 +452,51 @@ describe('bind()', () => {
 describe('run() dispatching', () => {
   it('should run a callable handler and return response', async () => {
     const mockEvent = {}
-    const dispatcher = {
-      dispatch: vi.fn().mockResolvedValue('done')
+    const dispatch = vi.fn().mockResolvedValue('done')
+    class CallableDispatcher {
+      dispatch = dispatch
     }
 
-    // @ts-expect-error - private method
-    route.getDispatcher = vi.fn().mockReturnValue(dispatcher)
+    // @ts-expect-error - testing purpose
+    route.setDispatchers({ callable: CallableDispatcher })
 
-    const result = await route.run({mockEvent} as any)
+    const result = await route.run({ mockEvent } as any)
 
     expect(result).toBe('done')
-    expect(dispatcher.dispatch).toHaveBeenCalled()
+    expect(dispatch).toHaveBeenCalled()
   })
 
-  // it('should run controller handler method and return response', async () => {
-  //   const mockEvent = {}
-  //   class TestController {
-  //     get = vi.fn(async () => OutgoingResponse.create({ content: 'yes' }))
-  //   }
+  it('should run controller handler method and return response', async () => {
+    const mockEvent = {}
+    const get = vi.fn().mockResolvedValue('yes')
+    const resolver = { resolve: (Class: ClassType) => new Class(resolver) }
+    class TestController {
+      get = get
+    }
 
-  //   routeOptions.handler = { get: TestController }
+    routeOptions.handler = { module: TestController as any, action: 'get', isClass: true }
 
-  //   const controllerDispatcher = {
-  //     dispatch: vi.fn(({ controller, handler }) => controller[handler]()),
-  //     getName: vi.fn().mockResolvedValue('TestController@get')
-  //   }
+    class ControllerDispatcher {
+      private readonly resolver: DependencyResolver
+      constructor (resolver: DependencyResolver) {
+        this.resolver = resolver
+      }
 
-  //   route.setDispatchers({ controller: controllerDispatcher })
+      getName = (): string => 'TestController@get'
+      // @ts-expect-error - testing purpose
+      dispatch = (): any => this.resolver.resolve(TestController).get()
+    }
 
-  //   const result = await route.run(mockEvent as any)
+    // @ts-expect-error - testing purpose
+    route.setDispatchers({ class: ControllerDispatcher })
+    // @ts-expect-error - testing purpose
+    route.setResolver(resolver)
 
-  //   expect(result.content).toBe('yes')
-  //   expect(controllerDispatcher.dispatch).toHaveBeenCalled()
-  // })
+    const result = await route.run(mockEvent as any)
 
-  // it('should run controller method resolved from container', async () => {
-  //   class Ctrl {
-  //     get = vi.fn(() => OutgoingResponse.create({ content: 'ctrl-resolved' }))
-  //   }
-
-  //   const mockResolver = {
-  //     resolve: vi.fn(() => new Ctrl())
-  //   }
-
-  //   route.setResolver(mockResolver as any)
-
-  //   routeOptions.handler = { get: Ctrl }
-
-  //   const dispatcher = {
-  //     dispatch: vi.fn(({ controller, handler }) => controller[handler]())
-  //   }
-
-  //   route.setDispatchers({ controller: dispatcher })
-
-  //   const result = await route.run({} as any)
-  //   expect(result.content).toBe('ctrl-resolved')
-  //   expect(mockResolver.resolve).toHaveBeenCalledWith(Ctrl)
-  // })
-
-  // it('should run a component handler and resolve output', async () => {
-  //   const mockEvent = {}
-
-  //   routeOptions.handler = { __component: true }
-
-  //   const dispatcher = {
-  //     dispatch: vi.fn(() => ({ content: 'comp' }))
-  //   }
-
-  //   route.setDispatchers({ component: dispatcher })
-
-  //   const result = await route.run(mockEvent as any)
-  //   expect(result.content).toBe('comp')
-  //   expect(dispatcher.dispatch).toHaveBeenCalled()
-  // })
-
-  // it('should handle string redirect', async () => {
-  //   routeOptions.redirect = '/home'
-
-  //   const response = await route.run({} as any)
-  //   expect(response).toEqual({
-  //     status: 302,
-  //     statusCode: 302,
-  //     headers: { Location: '/home' }
-  //   })
-  // })
-
-  // it('should handle object redirect', async () => {
-  //   routeOptions.redirect = { status: 301, location: '/permanent' }
-
-  //   const response = await route.run({} as any)
-  //   expect(response).toEqual({
-  //     status: 301,
-  //     statusCode: 301,
-  //     headers: { Location: '/permanent' }
-  //   })
-  // })
-
-  // it('should handle redirect via function', async () => {
-  //   routeOptions.redirect = () => ({ status: 301, location: '/fn' })
-
-  //   const response = await route.run({} as any)
-  //   expect(response).toEqual({
-  //     status: 301,
-  //     statusCode: 301,
-  //     headers: { Location: '/fn' }
-  //   })
-  // })
+    expect(result).toBe('yes')
+    expect(get).toHaveBeenCalled()
+  })
 
   it('should throw if dispatcher not found for handler type', async () => {
     routeOptions.handler = vi.fn()

@@ -1,183 +1,202 @@
 import { Route } from '../src/Route'
-import { RouterError } from '../src/errors/RouterError'
 import { RouteCollection } from '../src/RouteCollection'
 import { RouteNotFoundError } from '../src/errors/RouteNotFoundError'
 import { MethodNotAllowedError } from '../src/errors/MethodNotAllowedError'
 
+// Mock Route
 vi.mock('../src/Route', () => ({
   Route: {
     create: vi.fn((options) => ({
       ...options,
+      getOption: vi.fn((key: string, fallback: any) => key in options ? options[key] : fallback),
       matches: vi.fn(() => false),
-      getOption: vi.fn((key) => options[key]),
       toJSON: vi.fn(() => options)
     }))
   }
 }))
 
+const mockEvent = (method = 'GET', pathname = '/test'): any => ({
+  method,
+  pathname,
+  decodedPathname: pathname,
+  isMethod: vi.fn(() => method === 'OPTIONS')
+})
+
 describe('RouteCollection', () => {
-  let routeCollection: RouteCollection
+  let collection: RouteCollection
 
   beforeEach(() => {
-    routeCollection = RouteCollection.create()
+    collection = RouteCollection.create()
   })
 
-  it('should initialize with an empty collection when no routes are provided', () => {
-    expect(routeCollection.size).toBe(0)
-    expect(routeCollection.getRoutes()).toEqual([])
+  it('should initialize empty or with predefined routes', () => {
+    expect(collection.size).toBe(0)
+    expect(collection.getRoutes()).toEqual([])
+
+    const route1 = Route.create({ path: '/a', method: 'GET' })
+    const route2 = Route.create({ path: '/b', method: 'POST' })
+
+    const prefilled = RouteCollection.create([route1, route2])
+    expect(prefilled.size).toBe(2)
+    expect(prefilled.getRoutes()).toContain(route1)
   })
 
-  it('should initialize with provided routes', () => {
-    const routes = [
-      Route.create({ path: '/test', method: 'GET', handler: vi.fn() }),
-      Route.create({ path: '/example', method: 'POST', handler: vi.fn() })
-    ]
-
-    const collection = new RouteCollection(routes)
-
-    expect(collection.size).toBe(2)
-    expect(collection.getRoutes()).toEqual(routes)
+  it('should allow adding a route', () => {
+    const route = Route.create({ path: '/a', method: 'GET' })
+    collection.add(route)
+    expect(collection.size).toBe(1)
+    expect(collection.getRoutes()).toContain(route)
   })
 
-  it('should add a route to the collection', () => {
-    const route = Route.create({ path: '/test', method: 'GET', handler: vi.fn() })
+  it('should list routes by method', () => {
+    const getRoute = Route.create({ path: '/x', method: 'GET' })
+    const postRoute = Route.create({ path: '/x', method: 'POST' })
 
-    routeCollection.add(route)
+    collection.add(getRoute).add(postRoute)
 
-    expect(routeCollection.size).toBe(1)
-    expect(routeCollection.getRoutes()).toContain(route)
+    expect(collection.getRoutesByMethod('GET')).toEqual([getRoute])
+    expect(collection.getRoutesByMethod('POST')).toEqual([postRoute])
+    expect(collection.getRoutesByMethod('PUT')).toEqual([])
   })
 
-  it('should retrieve routes by method', () => {
-    const route1 = Route.create({ path: '/test', method: 'GET', handler: vi.fn() })
-    const route2 = Route.create({ path: '/example', method: 'POST', handler: vi.fn() })
+  it('should match a route by method and path', () => {
+    const route = Route.create({ path: '/test', method: 'GET' })
+    route.matches = vi.fn(() => true)
+    collection.add(route)
 
-    routeCollection.add(route1).add(route2)
-
-    expect(routeCollection.getRoutesByMethod('PUT')).toEqual([])
-    expect(routeCollection.getRoutesByMethod('GET')).toEqual([route1])
-    expect(routeCollection.getRoutesByMethod('POST')).toEqual([route2])
+    const matched = collection.match(mockEvent('GET', '/test'))
+    expect(matched).toBe(route)
   })
 
-  it('should match a route based on event and method', () => {
-    const route = Route.create({ path: '/test', method: 'GET', handler: vi.fn() })
+  it('should throw if no route matches', () => {
+    expect(() => collection.match(mockEvent('GET', '/nope'))).toThrow(RouteNotFoundError)
+  })
+
+  it('should fallback to OPTIONS route if supported methods exist', async () => {
+    const postRoute = Route.create({ path: '/only-post', method: 'POST' })
+    postRoute.matches = vi.fn((_, incl) => incl !== undefined) // match only if method not enforced
+    collection.add(postRoute)
+
+    const event = mockEvent('OPTIONS', '/only-post')
+    event.method = 'OPTIONS'
+    event.isMethod = vi.fn(() => true)
+
+    const route = collection.match(event)
+    const handler = (route as any)?.handler as Function
+    const response: any = await handler?.(event)
+
+    expect(response.statusCode).toBe(200)
+    expect(response.content.Allow).toBe('POST')
+  })
+
+  it('should fallback to OPTIONS route if supported methods exist 2', async () => {
+    const postRoute = Route.create({ path: '/only-post', method: 'POST' })
+    postRoute.matches = vi.fn((_, incl) => incl !== undefined)
+    collection.add(postRoute)
+
+    const event = mockEvent('OPTIONS', '/only-post')
+    event.pathname = '/only-post'
+    event.method = 'OPTIONS'
+    event.decodedPathname = undefined
+    event.isMethod = vi.fn(() => true)
+
+    const route = collection.match(event)
+    const handler = (route as any)?.handler as Function
+    const response: any = await handler?.(event)
+
+    expect(response.statusCode).toBe(200)
+  })
+
+  it('should throw MethodNotAllowedError when route matched but wrong method', () => {
+    const route = Route.create({ path: '/method-check', method: 'POST' })
     route.matches = vi.fn(() => true)
 
-    routeCollection.add(route)
-
-    const matchedRoute = routeCollection.match({ method: 'GET', pathname: '/test' } as any)
-
-    expect(matchedRoute).toBe(route)
-  })
-
-  it('should throw RouteNotFoundError if no route matches the event', () => {
-    expect(() =>
-      routeCollection.match({ method: 'GET', pathname: '/not-found' } as any)
-    ).toThrowError(RouteNotFoundError)
-  })
-
-  it('should return options response if a route exists but the method is OPTIONS', async () => {
-    const route = Route.create({ path: '/test', method: 'POST', handler: vi.fn() })
-    const resolver = vi.fn((params) => params)
-
-    route.matches = vi.fn((a, b) => b === false)
-
-    routeCollection.add(route).setOutgoingResponseResolver(resolver)
-
-    const matchedRoute = routeCollection.match({ method: 'GET', pathname: '/test', isMethod: vi.fn(() => true) } as any)
-    const action = matchedRoute.getOption<() => Promise<any>>('action', vi.fn())
-
-    await action()
-
-    expect(action).toEqual(expect.any(Function))
-    expect(matchedRoute).toMatchObject({ path: '/test', method: 'OPTIONS', action: expect.any(Function) })
-    expect(resolver).toHaveBeenCalledWith({ statusCode: 200, statusText: '', content: { Allow: 'POST' } })
-  })
-
-  it('should throw RouterError if resolver is undefined and a route exists but the method is OPTIONS', async () => {
-    const route = Route.create({ path: '/test', method: 'POST', handler: vi.fn() })
-
-    route.matches = vi.fn((a, b) => b === false)
-
-    routeCollection.add(route)
-
-    const matchedRoute = routeCollection.match({ method: 'GET', pathname: '/test', isMethod: vi.fn(() => true) } as any)
-    const action = matchedRoute.getOption<() => Promise<any>>('action', vi.fn())
-
-    expect(action).toEqual(expect.any(Function))
-    expect(matchedRoute).toMatchObject({ path: '/test', method: 'OPTIONS', action: expect.any(Function) })
-    await expect(async () => await action()).rejects.toThrowError(RouterError)
-  })
-
-  it('should throw MethodNotAllowedError if a route exists but the method is not allowed', () => {
-    const route = Route.create({ path: '/test', method: 'POST', handler: vi.fn() })
-    route.matches = vi.fn(() => true)
-
-    routeCollection.add(route)
+    collection.add(route)
 
     expect(() =>
-      routeCollection.match({ method: 'GET', pathname: '/test' } as any)
-    ).toThrowError(MethodNotAllowedError)
+      collection.match(mockEvent('GET', '/method-check'))
+    ).toThrow(MethodNotAllowedError)
   })
 
-  it('should check if a named route exists and retrieve it by name', () => {
-    const route = Route.create({ path: '/test', method: 'GET', name: 'testRoute', handler: vi.fn() })
+  it('should match named routes', () => {
+    const named = Route.create({ path: '/named', method: 'GET', name: 'namedRoute' })
+    collection.add(named)
 
-    routeCollection.add(route)
-
-    expect(routeCollection.hasNamedRoute('testRoute')).toBe(true)
-    expect(routeCollection.getByName('testRoute')).toBe(route)
+    expect(collection.hasNamedRoute('namedRoute')).toBe(true)
+    expect(collection.getByName('namedRoute')).toBe(named)
   })
 
-  it('should return undefined for a non-existing named route', () => {
-    expect(routeCollection.getByName('nonExistentRoute')).toBeUndefined()
+  it('should return undefined for non-existent named route', () => {
+    expect(collection.getByName('ghost')).toBeUndefined()
   })
 
-  it('should dump all routes as JSON objects', () => {
-    const route1 = Route.create({ path: '/test', method: 'GET', handler: vi.fn() })
-    const route2 = Route.create({ path: '/example', method: 'POST', handler: vi.fn() })
-    const route3 = Route.create({ path: '/test', method: 'HEAD', handler: vi.fn(), isInternalHeader: true })
+  describe('RouteCollection – dump and serialization', () => {
+    it('should dump all routes excluding isInternalHeader ones', async () => {
+      const route1 = Route.create({ path: '/visible', method: 'GET' })
+      const route2 = Route.create({ path: '/hidden', method: 'HEAD', isInternalHeader: true })
 
-    routeCollection.add(route1).add(route2).add(route3)
+      collection.add(route1).add(route2)
 
-    const dumpedRoutes = routeCollection.dump()
+      const result = await collection.dump()
 
-    expect(dumpedRoutes).toHaveLength(2)
-    expect(dumpedRoutes[2]).toBeUndefined()
-    expect(dumpedRoutes[1]).toMatchObject({ path: '/test', method: 'GET' })
-    expect(route3.getOption).toHaveBeenCalledWith('isInternalHeader', false)
-    expect(dumpedRoutes[0]).toMatchObject({ path: '/example', method: 'POST' })
+      expect(result).toHaveLength(1)
+      expect(result[0]).toMatchObject({ path: '/visible', method: 'GET' })
+      expect(route2.getOption).toHaveBeenCalledWith('isInternalHeader', false)
+    })
+
+    it('should sort routes alphabetically by path in dump()', async () => {
+      const routeA = Route.create({ path: '/zzz', method: 'GET' })
+      const routeB = Route.create({ path: '/aaa', method: 'POST' })
+
+      collection.add(routeA).add(routeB)
+
+      const result = await collection.dump()
+      expect(result.map(r => r.path)).toEqual(['/aaa', '/zzz'])
+    })
+
+    it('should convert all routes to a JSON string via toString()', async () => {
+      const route = Route.create({ path: '/stringify', method: 'GET' })
+      collection.add(route)
+
+      const json = await collection.toString()
+      expect(json).toBe(JSON.stringify(await collection.dump()))
+    })
   })
 
-  it('should set the outgoing response resolver', () => {
-    const resolver = vi.fn()
-    routeCollection.setOutgoingResponseResolver(resolver)
+  describe('RouteCollection – Symbol.iterator', () => {
+    it('should allow iterating over all routes', () => {
+      const r1 = Route.create({ path: '/1', method: 'GET' })
+      const r2 = Route.create({ path: '/2', method: 'POST' })
 
-    // @ts-expect-error - Accessing private method for testing purposes
-    expect(routeCollection.outgoingResponseResolver).toBe(resolver)
+      collection.add(r1).add(r2)
+
+      const routes = [...collection]
+
+      expect(routes).toContain(r1)
+      expect(routes).toContain(r2)
+      expect(routes).toHaveLength(2)
+    })
   })
 
-  it('should convert all routes to a JSON string', () => {
-    const route1 = Route.create({ path: '/test', method: 'GET', handler: vi.fn() })
-    const route2 = Route.create({ path: '/example', method: 'POST', handler: vi.fn() })
+  describe('RouteCollection – resolver safety', () => {
+    it('should handle fallback if resolver not set and fallback route exists', async () => {
+      const fallback = Route.create({ path: '/', method: 'GET', fallback: true })
+      fallback.matches = vi.fn(() => false)
+      collection.add(fallback)
 
-    routeCollection.add(route1).add(route2)
+      try {
+        collection.match(mockEvent('GET', '/does-not-match'))
+      } catch (err) {
+        expect(err).toBeInstanceOf(RouteNotFoundError)
+      }
+    })
 
-    const jsonString = routeCollection.toString()
+    it('should not fail if route name is undefined', () => {
+      const route = Route.create({ path: '/anon', method: 'GET' })
+      collection.add(route)
 
-    expect(jsonString).toBe(JSON.stringify(routeCollection.dump()))
-  })
-
-  it('should iterate over all routes', () => {
-    const route1 = Route.create({ path: '/test', method: 'GET', handler: vi.fn() })
-    const route2 = Route.create({ path: '/example', method: 'POST', handler: vi.fn() })
-
-    routeCollection.add(route1).add(route2)
-
-    const routes = [...routeCollection]
-
-    expect(routes).toHaveLength(2)
-    expect(routes).toContain(route1)
-    expect(routes).toContain(route2)
+      // internal map shouldn't throw
+      expect(() => collection.hasNamedRoute('anon')).not.toThrow()
+    })
   })
 })

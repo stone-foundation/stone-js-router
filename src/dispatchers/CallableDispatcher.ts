@@ -43,20 +43,18 @@ export class CallableDispatcher<
       return await instance(event)
     }
 
-    throw new RouterError('No callable function found')
+    throw new RouterError('No or invalid callable function provided')
   }
 
   private getCallable (
     handler?: MixedEventHandler<IncomingEventType, OutgoingResponseType>
-  ): FunctionalEventHandler<IncomingEventType, OutgoingResponseType> {
+  ): FunctionalEventHandler<IncomingEventType, OutgoingResponseType> | undefined {
     if (isMetaFactoryModule<FactoryEventHandler<IncomingEventType, OutgoingResponseType>>(handler)) {
       return handler.module(this.resolver)
     } else if (isMetaFunctionModule<FunctionalEventHandler<IncomingEventType, OutgoingResponseType>>(handler)) {
       return handler.module
     } else if (isFunctionModule<FunctionalEventHandler<IncomingEventType, OutgoingResponseType>>(handler)) {
       return handler
-    } else {
-      throw new RouterError('Invalid callable provided.')
     }
   }
 }

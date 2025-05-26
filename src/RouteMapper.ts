@@ -113,7 +113,7 @@ export class RouteMapper<
       .flatMap((def) => [def.protocol].flat().map((protocol) => ({ ...def, protocol })))
       .flatMap((def) => [def.domain].flat().map((domain) => ({ ...def, domain })))
       .flatMap((def) => {
-        if (!Array.isArray(def.children)) {
+        if (!Array.isArray(def.children) || def.children.length === 0) {
           return def.method === GET ? [def, { ...def, isInternalHeader: true, method: HEAD }] : def
         }
         return this

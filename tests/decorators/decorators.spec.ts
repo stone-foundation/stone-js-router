@@ -74,7 +74,7 @@ describe('Decorators', () => {
       expect(addMetadata).toHaveBeenCalledWith(
         expect.objectContaining({ kind: 'method' }),
         MATCH_KEY,
-        expect.objectContaining({ path: '/users/:id', action: 'save' })
+        expect.objectContaining({ path: '/users/:id', handler: { action: 'save' } })
       )
     })
   })
@@ -85,7 +85,7 @@ describe('Decorators', () => {
       expect(addMetadata).toHaveBeenCalledWith(
         expect.objectContaining({ kind: 'method' }),
         MATCH_KEY,
-        expect.objectContaining({ path: '/users/:id', methods: [GET, POST, PUT, PATCH, DELETE, OPTIONS], action: 'save' })
+        expect.objectContaining({ path: '/users/:id', methods: [GET, POST, PUT, PATCH, DELETE, OPTIONS], handler: { action: 'save' } })
       )
     })
   })
@@ -96,7 +96,7 @@ describe('Decorators', () => {
       expect(addMetadata).toHaveBeenCalledWith(
         expect.objectContaining({ kind: 'method' }),
         MATCH_KEY,
-        expect.objectContaining({ path: '/users', methods: [POST], action: 'save' })
+        expect.objectContaining({ path: '/users', methods: [POST], handler: { action: 'save' } })
       )
     })
   })
@@ -107,7 +107,7 @@ describe('Decorators', () => {
       expect(addMetadata).toHaveBeenCalledWith(
         expect.objectContaining({ kind: 'method' }),
         MATCH_KEY,
-        expect.objectContaining({ path: '/users/:id', methods: [GET], action: 'save' })
+        expect.objectContaining({ path: '/users/:id', methods: [GET], handler: { action: 'save' } })
       )
     })
   })
@@ -118,18 +118,18 @@ describe('Decorators', () => {
       expect(addMetadata).toHaveBeenCalledWith(
         expect.objectContaining({ kind: 'method' }),
         MATCH_KEY,
-        expect.objectContaining({ path: '/users/:id', methods: [GET], action: 'save' })
+        expect.objectContaining({ path: '/users/:id', methods: [GET], handler: { action: 'save' } })
       )
     })
   })
 
   describe('Fallback', () => {
     it('should call addMetadata with default options if none are provided', () => {
-      Fallback('/users/:id')(() => {}, { name: 'save', kind: 'method' } as any, {})
+      Fallback()(() => {}, { name: 'save', kind: 'method' } as any, {})
       expect(addMetadata).toHaveBeenCalledWith(
         expect.objectContaining({ kind: 'method' }),
         MATCH_KEY,
-        expect.objectContaining({ path: '/users/:id', methods: [GET], action: 'save' })
+        expect.objectContaining({ path: '/:__fallback__(.*)*', fallback: true, methods: [GET], handler: { action: 'save' } })
       )
     })
   })
@@ -140,7 +140,7 @@ describe('Decorators', () => {
       expect(addMetadata).toHaveBeenCalledWith(
         expect.objectContaining({ kind: 'method' }),
         MATCH_KEY,
-        expect.objectContaining({ path: '/users/:id', methods: [OPTIONS], action: 'save' })
+        expect.objectContaining({ path: '/users/:id', methods: [OPTIONS], handler: { action: 'save' } })
       )
     })
   })
@@ -151,7 +151,7 @@ describe('Decorators', () => {
       expect(addMetadata).toHaveBeenCalledWith(
         expect.objectContaining({ kind: 'method' }),
         MATCH_KEY,
-        expect.objectContaining({ path: '/users/:id', methods: [PUT], action: 'save' })
+        expect.objectContaining({ path: '/users/:id', methods: [PUT], handler: { action: 'save' } })
       )
     })
   })
@@ -162,7 +162,7 @@ describe('Decorators', () => {
       expect(addMetadata).toHaveBeenCalledWith(
         expect.objectContaining({ kind: 'method' }),
         MATCH_KEY,
-        expect.objectContaining({ path: '/users/:id', methods: [PATCH], action: 'save' })
+        expect.objectContaining({ path: '/users/:id', methods: [PATCH], handler: { action: 'save' } })
       )
     })
   })
@@ -173,7 +173,7 @@ describe('Decorators', () => {
       expect(addMetadata).toHaveBeenCalledWith(
         expect.objectContaining({ kind: 'method' }),
         MATCH_KEY,
-        expect.objectContaining({ path: '/users/:id', methods: [DELETE], action: 'save' })
+        expect.objectContaining({ path: '/users/:id', methods: [DELETE], handler: { action: 'save' } })
       )
     })
   })

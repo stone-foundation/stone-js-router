@@ -75,8 +75,8 @@ export interface StoneIncomingEvent extends IncomingEvent {
   query?: URLSearchParams
   decodedPathname?: string
   readonly isSecure?: boolean
+  is: (key: string, value: unknown) => boolean
   isMethod: (method: HttpMethod) => boolean
-  is: (...types: string[]) => boolean | string
   getUri: (withDomain: boolean) => string | undefined
   acceptsTypes: (...types: string[]) => boolean | string
   preferredType: (types: string[], defaultType?: string) => string
@@ -197,7 +197,7 @@ export type DispacherType = 'callable' | 'class' | 'component' | 'redirect'
 export type EventHandlerClass<
 IncomingEventType extends IIncomingEvent,
 OutgoingResponseType = unknown
-> = new (...args: any[]) => IEventHandler<IncomingEventType, OutgoingResponseType>
+> = new (...args: any[]) => IEventHandler<IncomingEventType, OutgoingResponseType> | unknown
 
 /**
  * Represents an event handler.
@@ -280,6 +280,7 @@ export type MixedEventHandler<
 > = MetaEventHandler<IncomingEventType, OutgoingResponseType>
 | FunctionalEventHandler<IncomingEventType, OutgoingResponseType>
 | MetaComponentEventHandler<IncomingEventType, OutgoingResponseType>
+| { action: string }
 
 /**
  * Represents a component event handler class.
