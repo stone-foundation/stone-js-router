@@ -1,231 +1,192 @@
 import { Route } from '../src/Route'
-import { GET, POST, PUT } from '../src/constants'
+import { GET, POST, HEAD } from '../src/constants'
 import { RouterError } from '../src/errors/RouterError'
-import { IContainer, RouteDefinition } from '../src/declarations'
-import { RouteMapperOptions, RouteMapper } from '../src/RouteMapper'
+import { RouteMapper, RouteMapperOptions } from '../src/RouteMapper'
+import { DependencyResolver, RouteDefinition } from '../src/declarations'
 
-// Mocking Route class
-vi.mock('../src/Route', () => ({
-  Route: {
-    create: vi.fn().mockReturnThis(),
-    setOutgoingResponseResolver: vi.fn().mockReturnThis(),
-    setDispatchers: vi.fn().mockReturnThis(),
-    setMatchers: vi.fn().mockReturnThis(),
-    setContainer: vi.fn().mockReturnThis()
+vi.mock('../src/Route', () => {
+  return {
+    Route: {
+      create: vi.fn(() => ({
+        setMatchers: vi.fn().mockReturnThis(),
+        setDispatchers: vi.fn().mockReturnThis(),
+        setResolver: vi.fn().mockReturnThis()
+      }))
+    }
   }
-}))
+})
 
-// User controller class
 class UserController {
   public index = vi.fn()
   public show = vi.fn()
 }
 
 describe('RouteMapper', () => {
-  let parent: RouteDefinition
-  let mockContainer: IContainer
-  let children: RouteDefinition[]
   let options: RouteMapperOptions
+  let mockContainer: DependencyResolver
 
   beforeEach(() => {
-    parent = {
-      children,
-      name: 'users',
-      path: '/users',
-      defaults: { id: 12 },
-      rules: { id: /^\d+$/ },
-      throttle: ['throttle'],
-      action: UserController,
-      bindings: { id: vi.fn() },
-      middleware: ['middleware'],
-      domain: '{domain}.example.com',
-      excludeMiddleware: ['middleware']
-    }
-
-    children = [{
-      name: 'get',
-      path: '/:id',
-      children: [{
-        name: 'profile',
-        path: '/profile',
-        children: [{
-          name: 'get',
-          method: GET,
-          path: '/:profileId',
-          action: 'get',
-          redirect: '/users',
-          alias: []
-        }, {
-          name: 'post',
-          method: POST,
-          path: '/:profileId',
-          action: 'save',
-          redirect: '/users',
-          alias: []
-        }]
-      }]
-    }, {
-      name: 'put',
-      path: '/:id',
-      method: PUT,
-      redirect: '/users',
-      action: 'edit'
-    }, {
-      path: '/',
-      method: GET,
-      fallback: true,
-      action: 'fallback'
-    }]
-
+    mockContainer = { resolve: vi.fn() } as any
     options = {
       prefix: '/api',
       strict: false,
-      maxDepth: 3,
+      maxDepth: 5,
       matchers: [],
       rules: {},
       defaults: {},
       bindings: {},
       dispatchers: {} as any,
-      responseResolver: vi.fn()
+      dependencyResolver: mockContainer
+    }
+  })
+
+  it('should throw if maxDepth is not positive', () => {
+    expect(() => new RouteMapper({ ...options, maxDepth: 0 })).toThrow(RouterError)
+  })
+
+  it('should return an instance via static create()', () => {
+    expect(RouteMapper.create(options)).toBeInstanceOf(RouteMapper)
+  })
+
+  it('should throw if maxDepth is exceeded', () => {
+    const mapper = new RouteMapper({ ...options, maxDepth: 1 })
+    const def: RouteDefinition = {
+      path: '/parent',
+      method: GET,
+      handler: { action: 'index' },
+      children: [{
+        path: '/child',
+        method: GET,
+        handler: { action: 'nested' }
+      }]
+    }
+    expect(() => mapper.toRoutes([def])).toThrow(RouterError)
+  })
+
+  it('should expand GET definitions to include HEAD', () => {
+    const mapper = RouteMapper.create(options)
+
+    const def: RouteDefinition = {
+      path: '/page',
+      method: GET,
+      handler: { action: 'show' }
     }
 
-    mockContainer = {
-      resolve: vi.fn()
-    } as unknown as IContainer
+    const routes = mapper.toRoutes([def])
+    expect(routes).toHaveLength(2)
+    expect(Route.create).toHaveBeenCalledWith(expect.objectContaining({ method: GET }))
+    expect(Route.create).toHaveBeenCalledWith(expect.objectContaining({ method: HEAD }))
   })
 
-  it('should create an instance of RouteMapper', () => {
-    const mapper = new RouteMapper(options, mockContainer)
-    expect(mapper).toBeInstanceOf(RouteMapper)
-  })
+  it('should merge parent and child route definitions correctly', () => {
+    const mapper = RouteMapper.create(options)
 
-  it('should throw an error if maxDepth is not positive', () => {
-    options.maxDepth = 0
-    expect(() => new RouteMapper(options)).toThrow(RouterError)
-  })
-
-  it('should map route definitions to Route instances', () => {
-    options.maxDepth = 4
-    const routes = RouteMapper.create(options, mockContainer).toRoutes([parent])
-
-    expect(routes).toHaveLength(4)
-    expect(Route.create).toHaveBeenCalledWith(expect.objectContaining({
-      method: 'GET',
-      action: expect.any(Object),
-      name: 'users.get.profile.get',
-      path: '/api/users/:id/profile/:profileId'
-    }))
-    expect(Route.create).toHaveBeenCalledWith(expect.objectContaining({
-      method: 'POST',
-      action: expect.any(Object),
-      name: 'users.get.profile.post',
-      path: '/api/users/:id/profile/:profileId'
-    }))
-    expect(Route.create).toHaveBeenCalledWith(expect.objectContaining({
-      method: 'PUT',
-      name: 'users.put',
-      path: '/api/users/:id',
-      action: expect.any(Object)
-    }))
-    expect(Route.create).toHaveBeenCalledWith(expect.objectContaining({
+    const routes = mapper.toRoutes([{
       name: 'users',
-      method: 'GET',
-      path: '/api/users/',
-      action: expect.any(Object)
+      path: '/users',
+      handler: { module: UserController },
+      bindings: { id: vi.fn() },
+      rules: { id: /^\d+$/ },
+      middleware: ['auth'],
+      excludeMiddleware: ['log'],
+      children: [{
+        name: 'show',
+        method: GET,
+        path: '/:id',
+        handler: { action: 'show' },
+        middleware: ['log']
+      }]
+    }])
+
+    expect(routes).toHaveLength(2) // GET and HEAD
+    expect(Route.create).toHaveBeenCalledWith(expect.objectContaining({
+      name: 'users.show',
+      path: '/api/users/:id',
+      method: GET,
+      middleware: ['log', 'auth'],
+      excludeMiddleware: ['log'],
+      rules: { id: /^\d+$/ }
     }))
   })
 
-  it('should map route definitions to Route instances and take the child action', () => {
-    const definitions: RouteDefinition[] = [
-      {
-        path: '/users',
-        method: 'GET',
-        action: {},
-        pageLayout: 'UserLayout',
-        children: [
-          {
-            path: '/profile',
-            method: 'POST',
-            action: vi.fn(),
-            customOptions: 'Profile'
-          }
-        ]
-      }
-    ]
+  it('should sanitize name and collapse double slashes in path', () => {
+    const mapper = RouteMapper.create({ ...options, prefix: '/api//' })
 
-    const mapper = RouteMapper.create(options, mockContainer)
-    const routes = mapper.toRoutes(definitions)
-    const expectedObject = { path: '/api/users/profile', method: 'POST', action: expect.any(Function), pageLayout: 'UserLayout', customOptions: 'Profile' }
+    const def: RouteDefinition = {
+      name: '..demo..',
+      path: '///demo',
+      method: GET,
+      handler: { action: 'index' }
+    }
 
+    mapper.toRoutes([def])
+    expect(Route.create).toHaveBeenCalledWith(expect.objectContaining({
+      name: 'demo',
+      path: '/api/demo'
+    }))
+  })
+
+  it('should use redirect instead of handler if provided', () => {
+    const mapper = RouteMapper.create(options)
+
+    const def: RouteDefinition = {
+      path: '/redirect',
+      method: POST,
+      redirect: '/users'
+    }
+
+    mapper.toRoutes([def])
+    expect(Route.create).toHaveBeenCalledWith(expect.objectContaining({
+      path: '/api/redirect',
+      method: POST,
+      redirect: '/users'
+    }))
+  })
+
+  it('should validate and map layout + custom fields', () => {
+    const mapper = RouteMapper.create(options)
+
+    const def: RouteDefinition = {
+      path: '/dashboard',
+      method: GET,
+      pageLayout: 'AdminLayout',
+      handler: { action: 'index' },
+      children: [{
+        path: '/settings',
+        method: POST,
+        customOptions: 'value',
+        handler: { action: 'save' }
+      }]
+    }
+
+    const routes = mapper.toRoutes([def])
     expect(routes).toHaveLength(1)
-    expect(Route.create).toHaveBeenCalledWith(expect.objectContaining(expectedObject))
+    expect(Route.create).toHaveBeenCalledWith(expect.objectContaining({
+      path: '/api/dashboard/settings',
+      method: POST,
+      pageLayout: 'AdminLayout',
+      customOptions: 'value'
+    }))
   })
 
-  it('should throw an error if maxDepth is exceeded', () => {
-    expect(() => {
-      options.maxDepth = 2
-      RouteMapper.create(options, mockContainer).toRoutes([parent])
-    }).toThrow(RouterError)
+  it('should throw if path is missing', () => {
+    const mapper = RouteMapper.create(options)
+    const def = { method: GET, handler: { action: 'test' } } as any
+    // @ts-expect-error - private access
+    expect(() => mapper.toRouteOptions(def)).toThrow(RouterError)
   })
 
-  it('should validate route options successfully', () => {
-    const routeOption = {
-      path: '/test',
-      method: 'GET',
-      action: vi.fn()
-    }
-
-    const mapper = new RouteMapper(options)
-
-    // @ts-expect-error Accessing private method for testing
-    const validatedOption = mapper.toRouteOptions(routeOption)
-
-    expect(validatedOption).toMatchObject({
-      path: '/api/test',
-      method: 'GET'
-    })
+  it('should throw if method is invalid', () => {
+    const mapper = RouteMapper.create(options)
+    const def = { path: '/invalid', method: 'FOO', handler: { action: 'test' } } as any
+    // @ts-expect-error - private access
+    expect(() => mapper.toRouteOptions(def)).toThrow(RouterError)
   })
 
-  it('should throw an error if path is missing in route options', () => {
-    const routeOption = {
-      method: 'GET',
-      action: vi.fn()
-    }
-
-    const mapper = new RouteMapper(options)
-
-    expect(() => {
-      // @ts-expect-error Accessing private method for testing
-      mapper.toRouteOptions(routeOption)
-    }).toThrow(RouterError)
-  })
-
-  it('should throw an error if method is invalid', () => {
-    const routeOption = {
-      path: '/test',
-      method: 'INVALID_METHOD',
-      action: vi.fn()
-    }
-
-    const mapper = new RouteMapper(options)
-
-    expect(() => {
-      // @ts-expect-error Accessing private method for testing
-      mapper.toRouteOptions(routeOption)
-    }).toThrow(RouterError)
-  })
-
-  it('should throw an error if action is missing in route options', () => {
-    const routeOption = {
-      path: '/test',
-      method: 'GET'
-    }
-
-    const mapper = new RouteMapper(options)
-
-    expect(() => {
-      // @ts-expect-error Accessing private method for testing
-      mapper.toRouteOptions(routeOption)
-    }).toThrow(RouterError)
+  it('should throw if neither handler nor redirect are defined', () => {
+    const mapper = RouteMapper.create(options)
+    const def = { path: '/bad', method: GET } as any
+    // @ts-expect-error - private access
+    expect(() => mapper.toRouteOptions(def)).toThrow(RouterError)
   })
 })

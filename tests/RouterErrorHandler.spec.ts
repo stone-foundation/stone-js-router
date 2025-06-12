@@ -1,81 +1,84 @@
-import { IBlueprint, ILogger } from '@stone-js/core'
 import { RouterError } from '../src/errors/RouterError'
 import { RouterErrorHandler } from '../src/RouterErrorHandler'
-import { OutgoingResponseResolver } from '../src/declarations'
-import { RouteNotFoundError } from '../src/errors/RouteNotFoundError'
-import { MethodNotAllowedError } from '../src/errors/MethodNotAllowedError'
 
 describe('RouterErrorHandler', () => {
-  const event: any = {}
-  let mockLogger: ILogger
-  let mockBlueprint: IBlueprint
-  let handler: RouterErrorHandler
-  let responseResolver: OutgoingResponseResolver
-
-  beforeEach(() => {
-    responseResolver = vi.fn(async (options) => await Promise.resolve(options))
-
-    mockLogger = {
-      error: vi.fn()
-    } as unknown as ILogger
-
-    mockBlueprint = {
-      get: vi.fn().mockReturnValue(responseResolver)
-    } as unknown as IBlueprint
-
-    handler = new RouterErrorHandler({ logger: mockLogger, blueprint: mockBlueprint })
+  const createLogger = (): any => ({
+    error: vi.fn()
   })
 
-  test('should throw an RouterError if blueprint is not provided', () => {
-    // @ts-expect-error - Testing invalid input
-    expect(() => new RouterErrorHandler({})).toThrowError(RouterError)
+  const createEvent = (type = 'html'): any => ({
+    preferredType: vi.fn(() => type)
   })
 
-  test('should throw an RouterError if logger is not provided', () => {
-    // @ts-expect-error - Testing invalid input
-    expect(() => new RouterErrorHandler({ blueprint: mockBlueprint })).toThrowError(RouterError)
+  it('should throw if logger is not provided', () => {
+    expect(() => new RouterErrorHandler({ logger: undefined as any })).toThrow(RouterError)
   })
 
-  test('should throw an RouterError when the responseResolver is undefined', async () => {
-    mockBlueprint.get = vi.fn().mockReturnValue(undefined)
-    const error = new RouteNotFoundError('Resource not found')
+  it('should handle RouteNotFoundError and return 404 (HTML)', () => {
+    const logger = createLogger()
+    const event = createEvent('html')
+    const handler = new RouterErrorHandler({ logger })
 
-    await expect(async () => await handler.handle(error, event)).rejects.toThrowError(RouterError)
+    const error = new Error('Missing')
+    error.name = 'RouteNotFoundError'
+
+    const result = handler.handle(error, event)
+
+    expect(result).toEqual({ statusCode: 404, content: 'Not Found' })
+    expect(logger.error).toHaveBeenCalledWith('Missing', { error })
   })
 
-  test('should log an error and return OutgoingResponse for RouteNotFoundError', async () => {
-    const error = new RouteNotFoundError('Resource not found')
+  it('should handle MethodNotAllowedError and return 405 (JSON)', () => {
+    const logger = createLogger()
+    const event = createEvent('json')
+    const handler = new RouterErrorHandler({ logger })
 
-    const response = await handler.handle(error, event)
+    const error = new Error('Wrong method')
+    error.name = 'MethodNotAllowedError'
 
-    expect(mockLogger.error).toHaveBeenCalledWith('Resource not found', { error })
-    expect(response).toEqual({ statusCode: 404 })
+    const result = handler.handle(error, event)
+
+    expect(result).toEqual({ statusCode: 405, content: { error: 'Method Not Allowed' } })
+    expect(logger.error).toHaveBeenCalledWith('Wrong method', { error })
   })
 
-  test('should log an error and return OutgoingResponse for MethodNotAllowedError', async () => {
-    const error = new MethodNotAllowedError('Method not allowed')
+  it('should fallback to 500 for unknown error types', () => {
+    const logger = createLogger()
+    const event = createEvent('html')
+    const handler = new RouterErrorHandler({ logger })
 
-    const response = await handler.handle(error, event)
+    const error = new Error('Something bad happened')
 
-    expect(mockLogger.error).toHaveBeenCalledWith('Method not allowed', { error })
-    expect(response).toEqual({ statusCode: 405 })
+    const result = handler.handle(error, event)
+
+    expect(result).toEqual({ statusCode: 500, content: 'Internal Server Error' })
+    expect(logger.error).toHaveBeenCalledWith('Something bad happened', { error })
   })
 
-  test('should log an error and return an OutgoingResponse', async () => {
-    const error = new RouterError('Custom error')
+  it('should return JSON object if preferredType is json', async () => {
+    const logger = createLogger()
+    const event = createEvent('json')
+    const handler = new RouterErrorHandler({ logger })
 
-    const response = await handler.handle(error, event)
+    const error = new Error('Unknown')
+    error.name = 'Unknown'
 
-    expect(mockLogger.error).toHaveBeenCalledWith('Custom error', { error })
-    expect(response).toEqual({ statusCode: 500 })
+    const result = await handler.handle(error, event)
+    expect(result.content).toEqual({ error: 'Internal Server Error' })
   })
 
-  test('should log an error and return OutgoingResponse for unknown error types', async () => {
-    const error = new Error('Unknown error')
+  it('should return string if preferredType is text/html/xml', async () => {
+    const logger = createLogger()
+    const handler = new RouterErrorHandler({ logger })
 
-    const response = await handler.handle(error, event)
+    const error = new Error('Boom')
 
-    expect(mockLogger.error).toHaveBeenCalledWith('Unknown error', { error })
-    expect(response).toEqual({ statusCode: 500 })
+    const htmlEvent = createEvent('html')
+    const textEvent = createEvent('text')
+    const xmlEvent = createEvent('xml')
+
+    expect((await handler.handle(error, htmlEvent)).content).toBe('Internal Server Error')
+    expect((await handler.handle(error, textEvent)).content).toBe('Internal Server Error')
+    expect((await handler.handle(error, xmlEvent)).content).toBe('Internal Server Error')
   })
 })

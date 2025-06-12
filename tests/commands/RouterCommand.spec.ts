@@ -1,7 +1,6 @@
 import { Router } from '../../src/Router'
-import { IContainer } from '../../src/declarations'
 import { RouterError } from '../../src/errors/RouterError'
-import { IncomingEvent, OutgoingResponse } from '@stone-js/core'
+import { IContainer, IncomingEvent } from '@stone-js/core'
 import { RouterCommand, routerCommandOptions } from '../../src/commands/RouterCommand'
 
 describe('RouterCommand', () => {
@@ -18,19 +17,23 @@ describe('RouterCommand', () => {
       ])
     } as unknown as Router
 
+    // @ts-expect-error - Mocking static method
+    Router.create = vi.fn(() => routerMock)
+
     containerMock = {
-      resolve: vi.fn(() => routerMock)
+      make: vi.fn(() => ({ get: vi.fn().mockReturnValue({}) }))
     } as unknown as IContainer
 
     incomingEventMock = {
       getMetadataValue: vi.fn()
     } as unknown as IncomingEvent
 
-    routerCommand = new RouterCommand({ container: containerMock })
+    routerCommand = new RouterCommand(containerMock)
   })
 
   it('should throw RouterError if container is not provided', () => {
-    expect(() => new RouterCommand({ container: undefined as any })).toThrowError(RouterError)
+    // @ts-expect-error - Testing invalid input
+    expect(() => new RouterCommand()).toThrowError(RouterError)
   })
 
   it('should resolve Router from the container and call dumpRoutes when action is list', async () => {
@@ -40,13 +43,13 @@ describe('RouterCommand', () => {
 
     const response = await routerCommand.handle(incomingEventMock)
 
-    expect(containerMock.resolve).toHaveBeenCalledWith(Router)
+    expect(containerMock.make).toHaveBeenCalledWith('blueprint')
     expect(routerMock.dumpRoutes).toHaveBeenCalled()
     expect(consoleTableSpy).toHaveBeenCalledWith([
       { path: '/home', method: 'GET' },
       { path: '/about', method: 'POST' }
     ])
-    expect(response).toBeInstanceOf(OutgoingResponse)
+    expect(response).toBeUndefined()
 
     consoleTableSpy.mockRestore()
   })
@@ -58,10 +61,10 @@ describe('RouterCommand', () => {
 
     const response = await routerCommand.handle(incomingEventMock)
 
-    expect(containerMock.resolve).not.toHaveBeenCalled()
+    expect(containerMock.make).not.toHaveBeenCalled()
     expect(routerMock.dumpRoutes).not.toHaveBeenCalled()
     expect(consoleTableSpy).not.toHaveBeenCalled()
-    expect(response).toBeInstanceOf(OutgoingResponse)
+    expect(response).toBeUndefined()
 
     consoleTableSpy.mockRestore()
   })

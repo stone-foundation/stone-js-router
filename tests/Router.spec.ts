@@ -1,15 +1,11 @@
-import { Mock } from 'vitest'
 import { Route } from '../src/Route'
 import { Router } from '../src/Router'
+import { GET, POST } from '../src/constants'
 import { RouteEvent } from '../src/events/RouteEvent'
-import { IBlueprint, IListener } from '@stone-js/core'
 import { RouterError } from '../src/errors/RouterError'
 import { RouteCollection } from '../src/RouteCollection'
+import type { DependencyResolver } from '../src/declarations'
 import { RouteNotFoundError } from '../src/errors/RouteNotFoundError'
-import { DELETE, GET, OPTIONS, PATCH, POST, PUT } from '../src/constants'
-import { IContainer, IIncomingEvent, RouteDefinition } from '../src/declarations'
-
-/* eslint-disable @typescript-eslint/no-extraneous-class */
 
 vi.mock('../src/Route', () => ({
   Route: {
@@ -20,368 +16,405 @@ vi.mock('../src/Route', () => ({
 vi.mock('../src/RouteMapper', () => ({
   RouteMapper: {
     create: vi.fn(() => ({
-      toRoutes: vi.fn((def) => [Route.create({} as any)])
+      toRoutes: vi.fn(() => [Route.create({} as any)])
     }))
   }
 }))
 
 describe('Router', () => {
   let router: Router
-  let blueprintMock: IBlueprint
-
-  const containerMock = {
-    alias: vi.fn(),
-    resolve: vi.fn(),
-    instance: vi.fn().mockReturnThis(),
-    has: vi.fn(() => true)
-  } as unknown as IContainer
-
-  const eventEmitterMock = {
-    emit: vi.fn(),
-    on: vi.fn()
-  }
+  let eventEmitter: any
+  let routeCollection: any
+  let dependencyResolver: DependencyResolver
 
   beforeEach(() => {
-    blueprintMock = {
+    dependencyResolver = {
+      resolve: vi.fn(),
+      alias: vi.fn(),
+      instance: vi.fn(),
+      has: vi.fn(() => true)
+    } as unknown as DependencyResolver
+
+    eventEmitter = {
+      emit: vi.fn(),
+      on: vi.fn(),
+      off: vi.fn(),
+    }
+
+    routeCollection = {
       add: vi.fn(),
-      get: vi.fn(() => ({}))
-    } as unknown as IBlueprint
+      match: vi.fn(),
+      getByName: vi.fn(),
+      hasNamedRoute: vi.fn(),
+      dump: vi.fn(() => []),
+      setOutgoingResponseResolver: vi.fn()
+    }
 
-    const collection = new RouteCollection()
-    collection.add = vi.fn()
-    collection.match = vi.fn()
-    collection.getByName = vi.fn()
-    collection.dump = vi.fn(() => [])
-    collection.setOutgoingResponseResolver = vi.fn().mockReturnThis()
-
-    RouteCollection.create = () => collection as any
+    RouteCollection.create = vi.fn(() => routeCollection)
 
     router = Router.create({
-      blueprint: blueprintMock,
-      container: containerMock,
-      eventEmitter: eventEmitterMock
+      eventEmitter,
+      dependencyResolver,
+      definitions: [],
+      maxDepth: 3,
+      matchers: [],
+      dispatchers: {} as any
     })
   })
 
-  it('should create a Router instance with valid options', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('should create a Router instance', () => {
     expect(router).toBeInstanceOf(Router)
   })
 
-  it('should throw a RouterError when the blueprint is missing', () => {
-    expect(() =>
-      // @ts-expect-error - Testing invalid input
-      Router.create({ blueprint: undefined, container: containerMock })
-    ).toThrow(RouterError)
-  })
-
-  it('should add a route group', () => {
+  it('should create a route group', () => {
     router.group('/api', { strict: true })
-    // @ts-expect-error - Accessing private property for testing purposes
+    // @ts-expect-error
     expect(router.groupDefinition).toEqual({ strict: true, path: '/api' })
   })
 
-  it('should remove the group definition', () => {
+  it('should remove a route group', () => {
     router.group('/api', { strict: true })
-    // @ts-expect-error - Accessing private property for testing purposes
+    // @ts-expect-error
     expect(router.groupDefinition).toEqual({ strict: true, path: '/api' })
-
     router.noGroup()
-    // @ts-expect-error - Accessing private property for testing purposes
+    // @ts-expect-error
     expect(router.groupDefinition).toBeUndefined()
   })
 
-  it('should add a GET route with an internal HEAD route for get method', () => {
-    router.get('/test', { action: vi.fn() })
-    expect(blueprintMock.add).toHaveBeenCalledWith('stone.router.definitions', expect.objectContaining({ methods: ['GET'] }))
-    expect(blueprintMock.add).toHaveBeenCalledWith('stone.router.definitions', expect.objectContaining({ methods: ['HEAD'] }))
+  describe('should register http verbs route', () => {
+    const methods: Array<[string, (path: any, def: any) => any, string[]]> = [
+      ['GET', (path, def) => router.get(path, def), ['GET']],
+      ['HEAD (internal)', (path, def) => router.get(path, def), ['HEAD']],
+      ['POST', (path, def) => router.post(path, def), ['POST']],
+      ['PUT', (path, def) => router.put(path, def), ['PUT']],
+      ['PATCH', (path, def) => router.patch(path, def), ['PATCH']],
+      ['DELETE', (path, def) => router.delete(path, def), ['DELETE']],
+      ['OPTIONS', (path, def) => router.options(path, def), ['OPTIONS']],
+      ['ANY', (path, def) => router.any(path, def), ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']]
+    ]
+
+    for (const [label, fn] of methods) {
+      it(`should register ${label} route`, () => {
+        fn('/test', { action: vi.fn() })
+        expect(routeCollection.add).toHaveBeenCalled()
+      })
+    }
   })
 
-  it('should add a GET route with an internal HEAD route for add method', () => {
-    router.add('/test', (() => {}) as any)
-    expect(blueprintMock.add).toHaveBeenCalledWith('stone.router.definitions', expect.objectContaining({ methods: ['GET'] }))
-    expect(blueprintMock.add).toHaveBeenCalledWith('stone.router.definitions', expect.objectContaining({ methods: ['HEAD'] }))
+  it('should register a fallback route with fallback flag', () => {
+    router.fallback(vi.fn())
+    expect(routeCollection.add).toHaveBeenCalled()
   })
 
-  it('should add a GET route with an internal HEAD route for page method', () => {
+  it('should use page() alias of get()', () => {
     router.page('/test', { action: vi.fn(), component: vi.fn() })
-    expect(blueprintMock.add).toHaveBeenCalledWith('stone.router.definitions', expect.objectContaining({ methods: ['GET'] }))
-    expect(blueprintMock.add).toHaveBeenCalledWith('stone.router.definitions', expect.objectContaining({ methods: ['HEAD'] }))
+    expect(routeCollection.add).toHaveBeenCalled()
   })
 
-  it('should add a GET route with an internal HEAD route for fallback method', () => {
-    router.fallback('/test')
-    expect(blueprintMock.add).toHaveBeenCalledWith('stone.router.definitions', expect.objectContaining({ methods: ['GET'] }))
-    expect(blueprintMock.add).toHaveBeenCalledWith('stone.router.definitions', expect.objectContaining({ methods: ['HEAD'] }))
+  it('should use add() alias of get()', () => {
+    router.add('/test', { action: vi.fn() })
+    expect(routeCollection.add).toHaveBeenCalled()
   })
 
-  it('should add a OPTIONS route', () => {
-    router.options('/submit', { action: vi.fn() })
-    expect(blueprintMock.add).toHaveBeenCalledWith('stone.router.definitions', expect.objectContaining({ methods: ['OPTIONS'] }))
-  })
-
-  it('should add a POST route', () => {
+  it('should call match() directly and apply group definition if set', () => {
     router.group('/api', { strict: true })
-    router.post('/submit', { action: vi.fn() })
-    expect(blueprintMock.add).toHaveBeenCalledWith(
-      'stone.router.definitions',
-      expect.objectContaining({ children: [expect.objectContaining({ methods: ['POST'] })] })
-    )
+    router.match('/match', { action: vi.fn() }, [GET])
+    expect(routeCollection.add).toHaveBeenCalled()
   })
 
-  it('should add a PUT route', () => {
-    router.put('/submit', { action: vi.fn() })
-    expect(blueprintMock.add).toHaveBeenCalledWith('stone.router.definitions', expect.objectContaining({ methods: ['PUT'] }))
+  it('should call match() directly and apply definition with handler', () => {
+    router.match('/match', vi.fn(), [GET])
+    expect(routeCollection.add).toHaveBeenCalled()
   })
 
-  it('should add a PATCH route', () => {
-    router.patch('/submit', { action: vi.fn() })
-    expect(blueprintMock.add).toHaveBeenCalledWith('stone.router.definitions', expect.objectContaining({ methods: ['PATCH'] }))
+  it('should define a set of routes via define()', () => {
+    const handler = vi.fn()
+    const def = [{ path: '/hello', method: GET, handler }]
+    router.define(def)
+
+    expect(routeCollection.add).toHaveBeenCalled()
   })
 
-  it('should add a DELETE route', () => {
-    router.delete('/submit', { action: vi.fn() })
-    expect(blueprintMock.add).toHaveBeenCalledWith('stone.router.definitions', expect.objectContaining({ methods: ['DELETE'] }))
+  it('should set a valid route collection instance with setRoutes()', () => {
+    const customCollection = new RouteCollection()
+
+    router.setRoutes(customCollection)
+
+    expect(router.getRoutes()).toBe(customCollection)
   })
 
-  it('should add a ANY route', () => {
-    router.any('/submit', { action: vi.fn() })
-    expect(blueprintMock.add).toHaveBeenCalledWith('stone.router.definitions', expect.objectContaining({ methods: [GET, POST, PUT, PATCH, DELETE, OPTIONS] }))
+  it('should throw RouterError when setting invalid RouteCollection', () => {
+    expect(() => router.setRoutes({} as any)).toThrow(RouterError)
   })
 
-  it('should define routes', () => {
-    router.define([{ path: '/define', method: GET, action: vi.fn() }])
-    expect(router.getRoutes().add).toHaveBeenCalled()
-    expect(blueprintMock.add).toHaveBeenCalledWith('stone.router.definitions', [expect.objectContaining({ method: GET })])
+  it('should merge and update RouterOptions via configure()', () => {
+    const def = [{ path: '/new', method: GET, handler: vi.fn() }]
+    router.configure({ definitions: def, maxDepth: 10 })
+    expect(RouteCollection.create).toHaveBeenCalled()
   })
 
-  it('should set routes when provided with a valid RouteCollection instance', () => {
-    (blueprintMock.get as Mock).mockImplementation((key) => {
-      if (key === 'stone.router.responseResolver') return undefined
-      if (key === 'stone.kernel.responseResolver') return vi.fn()
-    })
-    const routeCollectionMock = RouteCollection.create()
-    router.setRoutes(routeCollectionMock as unknown as RouteCollection)
-    expect(routeCollectionMock.setOutgoingResponseResolver).toHaveBeenCalled()
-    expect(blueprintMock.get).toHaveBeenCalledWith('stone.router.responseResolver')
+  it('should use global middleware with use()', () => {
+    const mw = vi.fn()
+    router.use(mw)
+    // @ts-expect-error
+    expect(router.routerOptions.middleware).toContain(mw)
   })
 
-  it('should throw an error if routes are not a valid RouteCollection instance', () => {
-    expect(() => router.setRoutes({} as unknown as RouteCollection)).toThrow(RouterError)
+  it('should use multiple middleware with use()', () => {
+    const mw1 = vi.fn(); const mw2 = vi.fn()
+    router.use([mw1, mw2])
+    // @ts-expect-error
+    expect(router.routerOptions.middleware).toEqual(expect.arrayContaining([mw1, mw2]))
   })
 
-  it('should configure router options by adding them to the blueprint', () => {
-    const options = { strict: true }
-    router.configure(options)
-    expect(blueprintMock.add).toHaveBeenCalledWith('stone.router', options)
+  it('should attach middleware to named routes using useOn()', () => {
+    const mw = vi.fn()
+    const route = { addMiddleware: vi.fn() }
+
+    const def = [{ name: 'named', path: '/x', method: GET, handler: vi.fn(), middleware: [] }]
+    router.configure({ definitions: def, maxDepth: 5 })
+
+    routeCollection.getByName = vi.fn(() => route)
+    router.useOn('named', mw)
+
+    expect(def[0].middleware).toContain(mw)
+    expect(route.addMiddleware).toHaveBeenCalledWith(mw)
   })
 
-  it('should add middleware to the blueprint', () => {
-    const middleware = vi.fn()
-    router.use(middleware)
-    expect(blueprintMock.add).toHaveBeenCalledWith('stone.router.middleware', middleware)
+  it('should call addMiddleware on all matched route names in useOn()', () => {
+    const mw = vi.fn()
+    const route = { addMiddleware: vi.fn() }
+    const def = [
+      { name: 'r1', path: '/r1', method: GET, handler: vi.fn(), middleware: [] },
+      { name: 'r2', path: '/r2', method: POST, handler: vi.fn() }
+    ]
+    router.configure({ definitions: def, maxDepth: 10 })
+    routeCollection.getByName = vi.fn(() => route)
+
+    router.useOn(['r1', 'r2'], mw)
+
+    expect(def[0].middleware).toContain(mw)
+    expect(def[1].middleware).toContain(mw)
+    expect(route.addMiddleware).toHaveBeenCalledTimes(2)
   })
 
-  it('should add multiple middleware to the blueprint', () => {
-    const middleware = [vi.fn(), vi.fn()]
-    router.use(middleware)
-    expect(blueprintMock.add).toHaveBeenCalledWith('stone.router.middleware', middleware)
+  it('should subscribe and unsubscribe to an event using on() and off()', () => {
+    const listener = vi.fn()
+    router.on(RouteEvent.ROUTED, listener)
+    router.off(RouteEvent.ROUTED, listener)
+    expect(eventEmitter.on).toHaveBeenCalledWith(RouteEvent.ROUTED, listener)
   })
 
-  it('should add middleware to specific route definitions', () => {
-    const addMiddleware = vi.fn()
-    router.getRoutes().getByName = vi.fn(() => ({ addMiddleware })) as any
-    const definitions = [{ name: 'route1' }, { name: 'route2' }] as unknown as RouteDefinition[]
-    (blueprintMock.get as Mock).mockReturnValue(definitions)
-    router.useOn('route1', vi.fn())
-    expect(addMiddleware).toHaveBeenCalled()
-    expect(definitions[0].middleware).toBeDefined()
-  })
+  it('should dispatch() an event and return response', async () => {
+    const route = {
+      bind: vi.fn(),
+      setDispatchers: vi.fn().mockReturnThis(),
+      setResolver: vi.fn().mockReturnThis(),
+      run: vi.fn().mockResolvedValue('done')
+    }
 
-  it('should handle adding middleware to multiple route definitions by name', () => {
-    const definitions = [{ name: 'route1' }, { name: 'route2' }] as unknown as RouteDefinition[];
-    (blueprintMock.get as Mock).mockReturnValue(definitions)
-    router.useOn(['route1', 'route2'], vi.fn())
-    expect(definitions[0].middleware).toBeDefined()
-    expect(definitions[1].middleware).toBeDefined()
-  })
-
-  it('should register an event listener on the event emitter', () => {
-    const listener = vi.fn() as unknown as IListener
-    const eventName = 'customEvent'
-    router.on(eventName, listener)
-    expect(eventEmitterMock.on).toHaveBeenCalledWith(eventName, listener)
-  })
-
-  it('should match a route and return it', () => {
-    const routeMock = { matches: vi.fn(() => true) }
-
-    // @ts-expect-error - Overriding method for testing purposes
-    router.getRoutes().match = vi.fn(() => routeMock)
-
-    const matchedRoute = router.findRoute({ method: 'GET', pathname: '/test' } as unknown as IIncomingEvent)
-
-    expect(matchedRoute).toBe(routeMock)
-    expect(containerMock.alias).toHaveBeenCalled()
-    expect(containerMock.instance).toHaveBeenCalled()
-    expect(eventEmitterMock.emit).toHaveBeenCalledWith(expect.any(RouteEvent))
-  })
-
-  it('should dispatch an event and return the route response', async () => {
-    const routeMock = { run: vi.fn(() => 'response'), bind: vi.fn(), getOption: () => [vi.fn()] }
-    const event = { method: 'GET', pathname: '/test', setRouteResolver: vi.fn() } as unknown as IIncomingEvent;
-
-    (blueprintMock.get as Mock).mockReturnValue([])
-
-    // @ts-expect-error - Overriding method for testing purposes
-    router.getRoutes().match = vi.fn(() => routeMock)
+    routeCollection.match = vi.fn(() => route)
+    const event = { setRouteResolver: vi.fn() } as any
 
     const response = await router.dispatch(event)
 
-    expect(response).toBe('response')
-    expect(routeMock.run).toHaveBeenCalledWith(event)
+    expect(response).toBe('done')
     expect(event.setRouteResolver).toHaveBeenCalled()
-    expect(routeMock.bind).toHaveBeenCalledWith(event)
-    expect(eventEmitterMock.emit).toHaveBeenCalledWith(expect.any(RouteEvent))
+    expect(route.bind).toHaveBeenCalledWith(event)
   })
 
-  it('should respond using a named route', async () => {
-    const routeMock = { run: vi.fn(() => 'response'), bind: vi.fn(), getOption: () => [vi.fn()] }
-    const event = { method: 'GET', pathname: '/test', setRouteResolver: vi.fn() } as unknown as IIncomingEvent;
-
-    (blueprintMock.get as Mock).mockReturnValue([])
-
-    // @ts-expect-error - Overriding method for testing purposes
-    router.getRoutes().getByName = vi.fn(() => routeMock)
-
-    const response = await router.respondWithRouteName(event, 'testRoute')
-
-    expect(response).toBe('response')
-    expect(routeMock.run).toHaveBeenCalledWith(event)
-    expect(event.setRouteResolver).toHaveBeenCalled()
-    expect(routeMock.bind).toHaveBeenCalledWith(event)
-    expect(eventEmitterMock.emit).toHaveBeenCalledWith(expect.any(RouteEvent))
-  })
-
-  it('should throw an error when route is not found', async () => {
-    const event = { method: 'GET', pathname: '/test', setRouteResolver: vi.fn() } as unknown as IIncomingEvent
-    router.getRoutes().getByName = vi.fn(() => undefined)
-    await expect(async () => await router.respondWithRouteName(event, 'testRoute')).rejects.toThrowError(RouteNotFoundError)
-  })
-
-  it('should generate a URL for a named route', () => {
-    const routeMock = {
-      generate: vi.fn(() => '/generated-url')
+  it('should dispatch to a named route using respondWithRouteName()', async () => {
+    const route = {
+      bind: vi.fn(),
+      setDispatchers: vi.fn().mockReturnThis(),
+      setResolver: vi.fn().mockReturnThis(),
+      run: vi.fn().mockResolvedValue('ok')
     }
 
-    // @ts-expect-error - Overriding method for testing purposes
-    router.getRoutes().getByName = vi.fn(() => routeMock)
+    routeCollection.getByName = vi.fn(() => route)
 
-    const url = router.generate({ name: 'testRoute' })
+    const event = { setRouteResolver: vi.fn() } as any
 
-    expect(url).toBe('/generated-url')
+    const response = await router.respondWithRouteName(event, 'myRoute')
+    expect(response).toBe('ok')
   })
 
-  it('should throw an error when route is not found', async () => {
-    router.getRoutes().getByName = vi.fn(() => undefined)
-    expect(() => router.generate({ name: 'testRoute' })).toThrowError(RouteNotFoundError)
+  it('should throw RouteNotFoundError if named route is missing', async () => {
+    routeCollection.getByName = vi.fn(() => undefined)
+    const event = { setRouteResolver: vi.fn() } as any
+
+    await expect(router.respondWithRouteName(event, 'missing')).rejects.toThrow(RouteNotFoundError)
   })
 
-  it('should navigate to a given URL', () => {
-    // @ts-expect-error - Testing invalid input
-    global.window = { history: { pushState: vi.fn() }, dispatchEvent: vi.fn() } as unknown as Window
-    global.CustomEvent = vi.fn()
-
-    router.navigate('/home')
-
-    expect(window.dispatchEvent).toHaveBeenCalledWith(expect.any(CustomEvent))
-    expect(window.history.pushState).toHaveBeenCalledWith({ path: '/home', options: '/home' }, '', '/home')
-
-    router.generate = vi.fn(() => '/home')
-
-    router.navigate({ name: '/home', hash: 'test' })
-
-    expect(window.history.pushState).toHaveBeenCalledWith({ path: '/home', options: { name: '/home', hash: 'test' } }, '', '/home')
-  })
-
-  it('should throw an error when navigate is called outside of browser', () => {
-    // @ts-expect-error - Testing invalid input
-    global.window = undefined
-    expect(() => router.navigate('/home')).toThrow(RouterError)
-  })
-
-  it('test getters and issers', () => {
-    // @ts-expect-error - Overriding method for testing purposes
-    router.routes.hasNamedRoute = vi.fn(() => true)
-    // @ts-expect-error - Overriding method for testing purposes
-    router.routes.dump = vi.fn(() => ({ test: 'test' }))
-    // @ts-expect-error - Overriding method for testing purposes
-    router.currentRoute = {
-      params: { test: 'test' },
-      getParam: vi.fn(() => 'test'),
-      getOption: vi.fn(() => 'route1')
-    } as any
-
-    expect(router.getCurrentRoute()).toBeTruthy()
-    expect(router.getParameter('name')).toBe('test')
-    expect(router.getCurrentRouteName()).toBe('route1')
-    expect(router.dumpRoutes()).toEqual({ test: 'test' })
-    expect(router.isCurrentRouteNamed('route1')).toBe(true)
-    expect(router.hasRoute(['route1', 'route2'])).toBe(true)
-    expect(router.getParameters()).toEqual({ test: 'test' })
-  })
-
-  it('should gather middleware from blueprint and route options', () => {
-    (blueprintMock.get as Mock).mockImplementation((key) => {
-      if (key === 'stone.router.skipMiddleware') return false
-      if (key === 'stone.router.middleware') return [vi.fn(), vi.fn()]
+  describe('Navigation and URL generation', () => {
+    beforeEach(() => {
+      // Fake browser environment
+      global.window = {
+        history: {
+          pushState: vi.fn(),
+          replaceState: vi.fn()
+        } as any,
+        dispatchEvent: vi.fn()
+      } as any
+      global.CustomEvent = vi.fn().mockImplementation((name, opts) => ({ name, ...opts }))
     })
-    const routeMock = { isMiddlewareExcluded: vi.fn(() => false), getOption: () => [vi.fn()] } as unknown as Route
-    const middleware = router.gatherRouteMiddleware(routeMock)
 
-    expect(middleware.length).toBe(3)
-    expect(blueprintMock.get).toHaveBeenCalledWith('stone.router.middleware', [])
-  })
-
-  it('should exclude middleware if skipMiddleware is true or excluded by the route', () => {
-    (blueprintMock.get as Mock).mockImplementation((key) => {
-      if (key === 'stone.router.skipMiddleware') return true
-      if (key === 'stone.router.middleware') return [vi.fn(), vi.fn()]
+    afterEach(() => {
+      // @ts-expect-error
+      delete global.window
+      // @ts-expect-error
+      delete global.CustomEvent
     })
-    const routeMock = { isMiddlewareExcluded: vi.fn(() => true), getOption: () => [vi.fn()] } as unknown as Route
-    const middleware = router.gatherRouteMiddleware(routeMock)
 
-    expect(middleware.length).toBe(0)
-    expect(blueprintMock.get).toHaveBeenCalledWith('stone.router.skipMiddleware', false)
-  })
-
-  it('should avoid adding duplicate middleware', () => {
-    const middlewareFn = vi.fn();
-
-    (blueprintMock.get as Mock).mockImplementation((key) => {
-      if (key === 'stone.router.skipMiddleware') return false
-      if (key === 'stone.router.middleware') return [middlewareFn]
+    it('should call pushState on navigate(path)', () => {
+      router.navigate('/home')
+      expect(window.history.pushState).toHaveBeenCalledWith({ path: '/home' }, '', '/home')
     })
-    const routeMock = { isMiddlewareExcluded: vi.fn(() => false), getOption: () => [middlewareFn] } as unknown as Route
-    const middleware = router.gatherRouteMiddleware(routeMock)
 
-    expect(middleware.length).toBe(1)
+    it('should call replaceState when replace = true', () => {
+      router.navigate('/replaced', true)
+      expect(window.history.replaceState).toHaveBeenCalledWith({ path: '/replaced' }, '', '/replaced')
+    })
+
+    it('should call navigate() using name-based route generation', () => {
+      const route = { generate: vi.fn(() => '/generated') }
+      routeCollection.getByName = vi.fn(() => route)
+
+      router.navigate({ name: 'myRoute' })
+
+      expect(window.history.pushState).toHaveBeenCalledWith({ name: 'myRoute', path: '/generated' }, '', '/generated')
+    })
+
+    it('should throw RouterError if navigate() called outside browser', () => {
+      // @ts-expect-error
+      global.window = undefined
+      expect(() => router.navigate('/fail')).toThrow(RouterError)
+    })
+
+    it('should generate URL using generate()', () => {
+      const route = { generate: vi.fn(() => '/url') }
+      routeCollection.getByName = vi.fn(() => route)
+      const url = router.generate({ name: 'route' })
+      expect(url).toBe('/url')
+    })
+
+    it('should throw RouteNotFoundError on generate() if route missing', () => {
+      routeCollection.getByName = vi.fn(() => undefined)
+      expect(() => router.generate({ name: 'missing' })).toThrow(RouteNotFoundError)
+    })
   })
 
-  it('should resolve middleware when it is a constructor', () => {
-    const MiddlewareConstructor = class {}
+  describe('Route access and getters', () => {
+    beforeEach(() => {
+      // @ts-expect-error
+      router.currentRoute = {
+        params: { id: 42 },
+        getParam: vi.fn((name, fallback) => (name === 'id' ? 42 : fallback)) as any,
+        getOption: vi.fn(() => 'current')
+      }
+    })
 
-    // @ts-expect-error - Accessing private method for testing purposes
-    router.makePipelineOptions().resolver(MiddlewareConstructor)
+    it('should return current route object', () => {
+      expect(router.getCurrentRoute()).toBeTruthy()
+    })
 
-    expect(containerMock.resolve).toHaveBeenCalledWith(MiddlewareConstructor, true)
+    it('should return current route name', () => {
+      expect(router.getCurrentRouteName()).toBe('current')
+    })
+
+    it('should confirm if current route is named X', () => {
+      expect(router.isCurrentRouteNamed('current')).toBe(true)
+    })
+
+    it('should get current route params', () => {
+      expect(router.getParams()).toEqual({ id: 42 })
+    })
+
+    it('should get a single param with fallback', () => {
+      expect(router.getParam('id')).toBe(42)
+      expect(router.getParam('missing', 'fallback')).toBe('fallback')
+    })
+
+    it('should check if named route exists', () => {
+      routeCollection.hasNamedRoute = vi.fn((name) => name === 'yes')
+      expect(router.hasRoute('yes')).toBe(true)
+      expect(router.hasRoute(['yes', 'no'])).toBe(true)
+    })
+
+    it('should dump all routes as JSON', async () => {
+      routeCollection.dump = vi.fn(async () => await Promise.resolve([{ path: '/a' }]))
+      const dump = await router.dumpRoutes()
+      expect(dump).toEqual([{ path: '/a' }])
+    })
   })
 
-  it('should resolve middleware from the container if it exists', () => {
-    const MiddlewareConstructor = 'middleware'
+  describe('Middleware resolution and pipeline', () => {
+    const mw1 = vi.fn()
+    const mw2 = vi.fn()
 
-    // @ts-expect-error - Accessing private method for testing purposes
-    router.makePipelineOptions().resolver(MiddlewareConstructor)
+    it('should gather middleware from routerOptions and route', () => {
+      router.configure({ middleware: [mw1], maxDepth: 10 })
+      const route = {
+        getOption: vi.fn(() => [mw2]),
+        isMiddlewareExcluded: vi.fn(() => false)
+      } as any
 
-    expect(containerMock.resolve).toHaveBeenCalledWith(MiddlewareConstructor, true)
+      const result = router.gatherRouteMiddleware(route)
+      expect(result).toEqual([mw1, mw2])
+    })
+
+    it('should filter out duplicate middleware', () => {
+      router.configure({ middleware: [mw1], maxDepth: 10 })
+      const route = {
+        getOption: vi.fn(() => [mw1]),
+        isMiddlewareExcluded: vi.fn(() => false)
+      } as any
+
+      const result = router.gatherRouteMiddleware(route)
+      expect(result).toEqual([mw1]) // no duplicates
+    })
+
+    it('should return empty array if middleware excluded or skipped', () => {
+      router.configure({ skipMiddleware: true, middleware: [mw1] })
+      const route = {
+        getOption: vi.fn(() => [mw1]),
+        isMiddlewareExcluded: vi.fn(() => true)
+      } as any
+
+      const result = router.gatherRouteMiddleware(route)
+      expect(result).toEqual([])
+    })
+
+    it('should resolve class-based or alias middleware in pipeline resolver', () => {
+      const pipe = { isClass: true, module: 'MiddlewareX' } as any
+      // @ts-expect-error
+      const resolver = router.makePipelineOptions().resolver
+      // @ts-expect-error
+      resolver(pipe)
+      expect(dependencyResolver.resolve).toHaveBeenCalledWith('MiddlewareX', true)
+    })
+
+    it('should resolve factory-based middleware in pipeline resolver', () => {
+      const fn = vi.fn()
+      const pipe = { isFactory: true, module: fn } as any
+      // @ts-expect-error
+      const resolver = router.makePipelineOptions().resolver
+      // @ts-expect-error
+      resolver(pipe)
+      expect(fn).toHaveBeenCalledWith(dependencyResolver)
+    })
+
+    it('should return undefined for unknown pipe types', () => {
+      const pipe = { module: vi.fn() } as any
+      // @ts-expect-error
+      const resolver = router.makePipelineOptions().resolver
+      // @ts-expect-error
+      const result = resolver(pipe)
+      expect(result).toBeUndefined()
+    })
   })
 })

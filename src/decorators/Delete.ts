@@ -24,4 +24,4 @@ export interface DeleteOptions extends Omit<DecoratorRouteDefinition, 'methods'>
  * }
  * ```
  */
-export const Delete = (path: string, options?: DeleteOptions): MethodDecorator => Match(path, { ...options, methods: [DELETE] })
+export const Delete = (path: string | string[], options?: DeleteOptions): MethodDecorator => Match(path, { ...options, methods: [DELETE] })

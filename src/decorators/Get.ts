@@ -28,4 +28,4 @@ export interface GetOptions extends Omit<DecoratorRouteDefinition, 'methods'> {}
  * }
  * ```
  */
-export const Get = (path: string, options?: GetOptions): MethodDecorator => Match(path, { ...options, methods: [GET] })
+export const Get = (path: string | string[], options?: GetOptions): MethodDecorator => Match(path, { ...options, methods: [GET] })

@@ -24,4 +24,4 @@ export interface PutOptions extends Omit<DecoratorRouteDefinition, 'methods'> {}
  * }
  * ```
  */
-export const Put = (path: string, options?: PutOptions): MethodDecorator => Match(path, { ...options, methods: [PUT] })
+export const Put = (path: string | string[], options?: PutOptions): MethodDecorator => Match(path, { ...options, methods: [PUT] })

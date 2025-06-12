@@ -11,14 +11,14 @@ export class RouteEvent extends Event {
    *
    * @event RouteEvent#ROUTING
    */
-  static ROUTING: string = 'stonejs@router.routing'
+  static readonly ROUTING: string = 'stonejs@router:routing'
 
   /**
    * ROUTE_MATCHED Event name, fires after event matched route.
    *
    * @event RouteEvent#ROUTE_MATCHED
    */
-  static ROUTE_MATCHED: string = 'stonejs@router.route_matched'
+  static readonly ROUTED: string = 'stonejs@router:routed'
 
   /**
    * Create a RouteEvent.

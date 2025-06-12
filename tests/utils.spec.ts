@@ -1,6 +1,6 @@
 import { RouteOptions } from '../src/Route'
 import { RouteSegmentConstraint } from '../src/declarations'
-import { uriRegex, pathRegex, domainRegex, buildDomainPattern, buildSegmentPattern, uriConstraints, getDomainConstraints, getSegmentsConstraints } from '../src/utils'
+import { uriRegex, pathRegex, domainRegex, buildDomainPattern, buildSegmentPattern, uriConstraints, getDomainConstraints, getSegmentsConstraints, isMetaComponentModule } from '../src/utils'
 
 describe('Utils Tests', () => {
   let mockOptions: RouteOptions
@@ -18,6 +18,13 @@ describe('Utils Tests', () => {
         id: '1'
       }
     } as any
+  })
+
+  describe('isMetaComponentModule', () => {
+    it('should check if the provided value is meta component or not', () => {
+      expect(isMetaComponentModule({})).toBe(false)
+      expect(isMetaComponentModule({ isComponent: true })).toBe(true)
+    })
   })
 
   describe('uriRegex', () => {

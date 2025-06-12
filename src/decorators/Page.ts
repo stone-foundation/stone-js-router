@@ -28,4 +28,4 @@ export interface PageOptions extends DecoratorPageRouteDefinition {}
  * }
  * ```
  */
-export const Page = (path: string, options?: PageOptions): MethodDecorator => Match(path, { ...options, methods: [GET] })
+export const Page = (path: string | string[], options?: PageOptions): MethodDecorator => Match(path, { ...options, methods: [GET] })
