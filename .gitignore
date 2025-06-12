@@ -9,7 +9,6 @@ dist/
 public/
 dist-ssr
 *.local
-stone-js-router-*
 
 # Types
 types/
@@ -84,12 +83,3 @@ lerna-debug.log*
 *.njsproj
 *.sln
 *.sw?
-
-# Index
-index.html
-
-# JSDoc
-docs/
-
-# Examples
-examples/
