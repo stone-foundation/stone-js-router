@@ -1,6 +1,7 @@
 import { Route } from '../src/Route'
 import { Router } from '../src/Router'
 import { GET, POST } from '../src/constants'
+import { RouteEvent } from '../src/events/RouteEvent'
 import { RouterError } from '../src/errors/RouterError'
 import { RouteCollection } from '../src/RouteCollection'
 import type { DependencyResolver } from '../src/declarations'
@@ -36,7 +37,8 @@ describe('Router', () => {
 
     eventEmitter = {
       emit: vi.fn(),
-      on: vi.fn()
+      on: vi.fn(),
+      off: vi.fn(),
     }
 
     routeCollection = {
@@ -200,10 +202,11 @@ describe('Router', () => {
     expect(route.addMiddleware).toHaveBeenCalledTimes(2)
   })
 
-  it('should subscribe to an event using on()', () => {
+  it('should subscribe and unsubscribe to an event using on() and off()', () => {
     const listener = vi.fn()
-    router.on('boot', listener)
-    expect(eventEmitter.on).toHaveBeenCalledWith('boot', listener)
+    router.on(RouteEvent.ROUTED, listener)
+    router.off(RouteEvent.ROUTED, listener)
+    expect(eventEmitter.on).toHaveBeenCalledWith(RouteEvent.ROUTED, listener)
   })
 
   it('should dispatch() an event and return response', async () => {
