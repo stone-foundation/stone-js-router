@@ -77,7 +77,7 @@ Partial.dependencyResolver
 ### dispatchers?
 
 ```ts
-optional dispatchers: IDispachers<StoneIncomingEvent, unknown>;
+optional dispatchers: IDispatchers<StoneIncomingEvent, unknown>;
 ```
 
 Dispatchers used for handling callable and controller-based routes.

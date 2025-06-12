@@ -43,7 +43,7 @@ optional dependencyResolver: DependencyResolver;
 ### dispatchers
 
 ```ts
-dispatchers: IDispachers<IncomingEventType, OutgoingResponseType>;
+dispatchers: IDispatchers<IncomingEventType, OutgoingResponseType>;
 ```
 
 ***

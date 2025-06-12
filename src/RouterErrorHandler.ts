@@ -10,7 +10,7 @@ export interface RouterErrorHandlerOptions {
 }
 
 /**
- * Class representing an RouterErrorHandler.
+ * Class representing a RouterErrorHandler.
  */
 export class RouterErrorHandler<
   IncomingEventType extends StoneIncomingEvent = StoneIncomingEvent,
@@ -19,13 +19,13 @@ export class RouterErrorHandler<
   private readonly logger: ILogger
 
   /**
-   * Create an RouterErrorHandler.
+   * Create a RouterErrorHandler.
    *
    * @param options - RouterErrorHandler options.
    */
   constructor ({ logger }: RouterErrorHandlerOptions) {
     if (logger === undefined) {
-      throw new RouterError('Logger is required to create an RouterErrorHandler instance.')
+      throw new RouterError('Logger is required to create a RouterErrorHandler instance.')
     }
 
     this.logger = logger

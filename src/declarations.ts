@@ -178,7 +178,7 @@ export interface IDispacher<
 /**
  * Collection of dispatchers for route handling.
  */
-export type IDispachers<
+export type IDispatchers<
   IncomingEventType extends IIncomingEvent,
   OutgoingResponseType = unknown
 > = Record<DispacherType, DispacheClass<IncomingEventType, OutgoingResponseType>>
@@ -523,7 +523,7 @@ export interface RouterOptions<
   matchers: Array<IMatcher<IncomingEventType, OutgoingResponseType>>
 
   /** Dispatchers used for handling callable and controller-based routes. */
-  dispatchers: IDispachers<IncomingEventType, OutgoingResponseType>
+  dispatchers: IDispatchers<IncomingEventType, OutgoingResponseType>
 
   /** Array of route definitions to be included in the router. */
   definitions: Array<RouteDefinition<IncomingEventType, OutgoingResponseType>>

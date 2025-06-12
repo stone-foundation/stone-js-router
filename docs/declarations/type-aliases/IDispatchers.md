@@ -1,7 +1,7 @@
-# Type Alias: IDispachers\<IncomingEventType, OutgoingResponseType\>
+# Type Alias: IDispatchers\<IncomingEventType, OutgoingResponseType\>
 
 ```ts
-type IDispachers<IncomingEventType, OutgoingResponseType> = Record<DispacherType, DispacheClass<IncomingEventType, OutgoingResponseType>>;
+type IDispatchers<IncomingEventType, OutgoingResponseType> = Record<DispacherType, DispacheClass<IncomingEventType, OutgoingResponseType>>;
 ```
 
 Collection of dispatchers for route handling.

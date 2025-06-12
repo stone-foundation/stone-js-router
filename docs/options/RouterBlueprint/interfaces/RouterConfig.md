@@ -79,7 +79,7 @@ Resolver used to resolve dependencies.
 ### dispatchers
 
 ```ts
-dispatchers: IDispachers<IncomingEventType, OutgoingResponseType>;
+dispatchers: IDispatchers<IncomingEventType, OutgoingResponseType>;
 ```
 
 Dispatchers used for handling callable and controller-based routes.

@@ -817,7 +817,7 @@ Sets the dispatchers for handling callable or handler actions.
 
 ##### dispatchers
 
-[`IDispachers`](../../declarations/type-aliases/IDispachers.md)\<`IncomingEventType`, `OutgoingResponseType`\>
+[`IDispatchers`](../../declarations/type-aliases/IDispatchers.md)\<`IncomingEventType`, `OutgoingResponseType`\>
 
 The dispatchers to set.
 

@@ -1,6 +1,6 @@
 # Class: RouterErrorHandler\<IncomingEventType, OutgoingResponseType\>
 
-Class representing an RouterErrorHandler.
+Class representing a RouterErrorHandler.
 
 ## Type Parameters
 
@@ -24,7 +24,7 @@ Class representing an RouterErrorHandler.
 new RouterErrorHandler<IncomingEventType, OutgoingResponseType>(options): RouterErrorHandler<IncomingEventType, OutgoingResponseType>;
 ```
 
-Create an RouterErrorHandler.
+Create a RouterErrorHandler.
 
 #### Parameters
 

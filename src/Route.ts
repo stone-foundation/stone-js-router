@@ -13,8 +13,8 @@ import {
   IDispacher,
   HttpMethod,
   IBoundModel,
-  IDispachers,
   RouteParams,
+  IDispatchers,
   BindingValue,
   DispacheClass,
   DispacherType,
@@ -58,7 +58,7 @@ export class Route<IncomingEventType extends IIncomingEvent = IIncomingEvent, Ou
   private resolver?: DependencyResolver
   private eventQuery?: Record<string, string>
   private matchers: Array<IMatcher<IncomingEventType, OutgoingResponseType>>
-  private dispatchers?: IDispachers<IncomingEventType, OutgoingResponseType>
+  private dispatchers?: IDispatchers<IncomingEventType, OutgoingResponseType>
 
   private readonly uriConstraints: Array<Partial<RouteSegmentConstraint>>
 
@@ -491,7 +491,7 @@ export class Route<IncomingEventType extends IIncomingEvent = IIncomingEvent, Ou
    * @param dispatchers - The dispatchers to set.
    * @returns The updated `Route` instance.
    */
-  setDispatchers (dispatchers: IDispachers<IncomingEventType, OutgoingResponseType>): this {
+  setDispatchers (dispatchers: IDispatchers<IncomingEventType, OutgoingResponseType>): this {
     this.dispatchers = dispatchers
     return this
   }

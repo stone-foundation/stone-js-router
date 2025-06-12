@@ -53,7 +53,7 @@
 - [HttpMethod](type-aliases/HttpMethod.md)
 - [IBoundInstance](type-aliases/IBoundInstance.md)
 - [IBoundModel](type-aliases/IBoundModel.md)
-- [IDispachers](type-aliases/IDispachers.md)
+- [IDispatchers](type-aliases/IDispatchers.md)
 - [IMatcher](type-aliases/IMatcher.md)
 - [IOutgoingResponse](type-aliases/IOutgoingResponse.md)
 - [LazyComponentEventHandler](type-aliases/LazyComponentEventHandler.md)

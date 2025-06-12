@@ -2,7 +2,7 @@ import {
   IMatcher,
   HttpMethod,
   IBoundModel,
-  IDispachers,
+  IDispatchers,
   IIncomingEvent,
   BindingResolver,
   RouteDefinition,
@@ -28,7 +28,7 @@ export interface RouteMapperOptions<
   defaults?: Record<string, unknown>
   dependencyResolver?: DependencyResolver
   bindings?: Record<string, IBoundModel | BindingResolver>
-  dispatchers: IDispachers<IncomingEventType, OutgoingResponseType>
+  dispatchers: IDispatchers<IncomingEventType, OutgoingResponseType>
   matchers: Array<IMatcher<IncomingEventType, OutgoingResponseType>>
 }
 
