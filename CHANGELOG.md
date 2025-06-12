@@ -5,6 +5,13 @@ All notable changes to the "Stone.js Router" extension will be documented in thi
 ## Unreleased
 
 
+## [0.1.0](https://github.com/stone-foundation/stone-js-router/compare/v0.0.3...v0.1.0) (2025-06-12)
+
+
+### Features
+
+* major internal restructuring and cleanup ([#3](https://github.com/stone-foundation/stone-js-router/issues/3)) ([8fbaeca](https://github.com/stone-foundation/stone-js-router/commit/8fbaeca87265f49c925a5a96af252f17c80da8b5))
+
 ## [0.0.3](https://github.com/stonemjs/router/compare/v0.0.2...v0.0.3) (2025-01-21)
 
 
