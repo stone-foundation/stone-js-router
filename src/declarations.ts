@@ -560,6 +560,9 @@ export interface IEventEmitter {
   on: ((event: Event, listener: FunctionalEventListener) => void) &
   ((event: string, listener: FunctionalEventListener) => void) &
   ((event: CustomEvent, listener: FunctionalEventListener) => void)
+  off: ((event: Event, listener: FunctionalEventListener) => void) &
+  ((event: string, listener: FunctionalEventListener) => void) &
+  ((event: CustomEvent, listener: FunctionalEventListener) => void)
 }
 
 /**

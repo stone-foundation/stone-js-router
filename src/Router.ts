@@ -374,6 +374,18 @@ export class Router<
   }
 
   /**
+   * Unsubscribes from an event emitted by the router's event emitter.
+   *
+   * @param eventName - The name of the event to stop listening for.
+   * @param listener - The listener function to remove.
+   * @returns The current `Router` instance.
+   */
+  off (eventName: string, listener: FunctionalEventListener): this {
+    this.routerOptions.eventEmitter?.off(eventName, listener)
+    return this
+  }
+
+  /**
    * Dispatches an event through the router to find and execute the corresponding route.
    *
    * @param event - The incoming event to process.
