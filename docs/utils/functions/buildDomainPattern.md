@@ -1,7 +1,7 @@
 # Function: buildDomainPattern()
 
 ```ts
-function buildDomainPattern(constraint?): undefined | string;
+function buildDomainPattern(constraint?): string | undefined;
 ```
 
 Builds a domain pattern based on a route segment constraint.
@@ -16,6 +16,6 @@ Partial route segment constraint for domain matching.
 
 ## Returns
 
-`undefined` \| `string`
+`string` \| `undefined`
 
 A string representing the domain pattern or undefined.

@@ -1,4 +1,4 @@
-# Type Alias: CommandHandlerClass()\<W, X\>
+# Type Alias: CommandHandlerClass\<W, X\>
 
 ```ts
 type CommandHandlerClass<W, X> = (...args) => ICommandHandler<W, X>;

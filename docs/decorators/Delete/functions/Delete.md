@@ -10,9 +10,9 @@ A method decorator for defining HTTP DELETE routes.
 
 ### path
 
-The route path for the DELETE endpoint.
+`string` \| `string`[]
 
-`string` | `string`[]
+The route path for the DELETE endpoint.
 
 ### options?
 

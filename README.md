@@ -3,7 +3,7 @@
 [![npm](https://img.shields.io/npm/l/@stone-js/router)](https://opensource.org/licenses/MIT)
 [![npm](https://img.shields.io/npm/v/@stone-js/router)](https://www.npmjs.com/package/@stone-js/router)
 [![npm](https://img.shields.io/npm/dm/@stone-js/router)](https://www.npmjs.com/package/@stone-js/router)
-![Maintenance](https://img.shields.io/maintenance/yes/2025)
+![Maintenance](https://img.shields.io/maintenance/yes/2026)
 [![Build Status](https://github.com/stone-foundation/stone-js-router/actions/workflows/main.yml/badge.svg)](https://github.com/stone-foundation/stone-js-router/actions/workflows/main.yml)
 [![Publish Package to npmjs](https://github.com/stone-foundation/stone-js-router/actions/workflows/release.yml/badge.svg)](https://github.com/stone-foundation/stone-js-router/actions/workflows/release.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=stone-foundation_stone-js-router&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=stone-foundation_stone-js-router)
@@ -68,7 +68,7 @@ export const routes = defineRoutes([
 
 This package is part of the Stone.js ecosystem, a modern JavaScript framework built around the Continuum Architecture.
 
-Explore the full documentation: https://stonejs.dev
+Explore the full documentation: [https://stonejs.dev](https://stonejs.dev)
 
 ## API documentation
 

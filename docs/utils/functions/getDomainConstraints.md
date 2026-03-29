@@ -2,8 +2,8 @@
 
 ```ts
 function getDomainConstraints(options): 
-  | undefined
-| Partial<RouteSegmentConstraint>;
+  | Partial<RouteSegmentConstraint>
+  | undefined;
 ```
 
 Extracts domain constraints from route options.
@@ -18,7 +18,7 @@ The route options to extract domain constraints from.
 
 ## Returns
 
-  \| `undefined`
   \| `Partial`\<[`RouteSegmentConstraint`](../../declarations/interfaces/RouteSegmentConstraint.md)\>
+  \| `undefined`
 
 Partial route segment constraint for the domain or undefined.

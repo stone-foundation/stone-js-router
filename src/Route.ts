@@ -153,7 +153,7 @@ export class Route<IncomingEventType extends IIncomingEvent = IIncomingEvent, Ou
    * @returns The protocol as a string (`http` or `https`).
    */
   get protocol (): string {
-    return this.options.protocol ?? this.url.protocol.replace(':', '').trim()
+    return this.url.protocol.replace(':', '').trim()
   }
 
   /**
@@ -335,7 +335,7 @@ export class Route<IncomingEventType extends IIncomingEvent = IIncomingEvent, Ou
    * @returns `true` if the route is HTTP-only, otherwise `false`.
    */
   isHttpOnly (): boolean {
-    return this.protocol === 'http'
+    return this.options.protocolPolicy === 'force-http'
   }
 
   /**
@@ -344,7 +344,7 @@ export class Route<IncomingEventType extends IIncomingEvent = IIncomingEvent, Ou
    * @returns `true` if the route is HTTPS-only, otherwise `false`.
    */
   isHttpsOnly (): boolean {
-    return this.protocol === 'https'
+    return this.options.protocolPolicy === 'force-https'
   }
 
   /**

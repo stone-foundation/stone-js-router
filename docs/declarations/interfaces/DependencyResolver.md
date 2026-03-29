@@ -9,7 +9,7 @@ The module to resolve.
 
 ## Properties
 
-### has()
+### has
 
 ```ts
 has: (key) => boolean;
@@ -27,7 +27,7 @@ has: (key) => boolean;
 
 ***
 
-### resolve()
+### resolve
 
 ```ts
 resolve: <V>(key, singleton?) => V;

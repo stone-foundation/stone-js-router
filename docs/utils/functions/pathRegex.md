@@ -1,7 +1,7 @@
 # Function: pathRegex()
 
 ```ts
-function pathRegex(options, flags): RegExp;
+function pathRegex(options, flags?): RegExp;
 ```
 
 Builds a regular expression for matching route paths based on route options.
@@ -14,7 +14,7 @@ Builds a regular expression for matching route paths based on route options.
 
 The route options to build the regex from.
 
-### flags
+### flags?
 
 `string` = `'i'`
 

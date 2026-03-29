@@ -13,7 +13,7 @@ Head script descriptor.
 ### async?
 
 ```ts
-optional async: boolean;
+optional async?: boolean;
 ```
 
 ***
@@ -21,7 +21,7 @@ optional async: boolean;
 ### defer?
 
 ```ts
-optional defer: boolean;
+optional defer?: boolean;
 ```
 
 ***
@@ -37,5 +37,5 @@ src: string;
 ### type?
 
 ```ts
-optional type: string;
+optional type?: string;
 ```

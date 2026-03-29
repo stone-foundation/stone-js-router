@@ -1,7 +1,7 @@
 # Function: EventHandler()
 
 ```ts
-function EventHandler<T>(path, options?): ClassDecorator;
+function EventHandler<T>(path?, options?): ClassDecorator;
 ```
 
 A class decorator for defining an event handler group.
@@ -14,7 +14,7 @@ A class decorator for defining an event handler group.
 
 ## Parameters
 
-### path
+### path?
 
 `string` = `'/'`
 

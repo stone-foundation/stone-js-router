@@ -41,7 +41,7 @@ export class RouterErrorHandler<
   public handle (error: Error, event: StoneIncomingEvent): Promiseable<OutgoingResponseType> {
     const types = ['json', 'html', 'xml', 'text']
     const message = (error: string): string | { error: string } => {
-      return event.preferredType(types, 'html') === 'json' ? { error } : error
+      return event.preferredType?.(types, 'html') === 'json' ? { error } : error
     }
 
     this.logger.error(error.message, { error })

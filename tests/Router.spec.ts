@@ -38,7 +38,7 @@ describe('Router', () => {
     eventEmitter = {
       emit: vi.fn(),
       on: vi.fn(),
-      off: vi.fn(),
+      off: vi.fn()
     }
 
     routeCollection = {

@@ -10,9 +10,9 @@ A method decorator for defining HTTP POST routes.
 
 ### path
 
-The route path for the POST endpoint.
+`string` \| `string`[]
 
-`string` | `string`[]
+The route path for the POST endpoint.
 
 ### options?
 

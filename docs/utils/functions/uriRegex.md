@@ -1,7 +1,7 @@
 # Function: uriRegex()
 
 ```ts
-function uriRegex(options, flags): RegExp;
+function uriRegex(options, flags?): RegExp;
 ```
 
 Builds a regular expression for matching a full URI based on route options.
@@ -14,7 +14,7 @@ Builds a regular expression for matching a full URI based on route options.
 
 The route options to build the regex from.
 
-### flags
+### flags?
 
 `string` = `'i'`
 

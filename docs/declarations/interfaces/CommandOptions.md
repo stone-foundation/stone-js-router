@@ -9,7 +9,7 @@ Represents the configuration options for a CLI command.
 ### alias?
 
 ```ts
-optional alias: string | string[];
+optional alias?: string | string[];
 ```
 
 ***
@@ -17,7 +17,7 @@ optional alias: string | string[];
 ### args?
 
 ```ts
-optional args: string | string[];
+optional args?: string | string[];
 ```
 
 ***
@@ -25,7 +25,7 @@ optional args: string | string[];
 ### desc?
 
 ```ts
-optional desc: string;
+optional desc?: string;
 ```
 
 ***
@@ -38,10 +38,10 @@ name: string;
 
 ***
 
-### options()?
+### options?
 
 ```ts
-optional options: (yargs) => IArgv;
+optional options?: (yargs) => IArgv;
 ```
 
 #### Parameters

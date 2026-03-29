@@ -1,7 +1,7 @@
 # Function: Routing()
 
 ```ts
-function Routing<T>(options): ClassDecorator;
+function Routing<T>(options?): ClassDecorator;
 ```
 
 A class decorator for configuring routing behavior.
@@ -14,7 +14,7 @@ A class decorator for configuring routing behavior.
 
 ## Parameters
 
-### options
+### options?
 
 [`RoutingOptions`](../interfaces/RoutingOptions.md) = `{}`
 

@@ -7,7 +7,7 @@ Options for configuring a regular expression pattern.
 ### defaults?
 
 ```ts
-optional defaults: Record<string, unknown>;
+optional defaults?: Record<string, unknown>;
 ```
 
 ***
@@ -15,7 +15,7 @@ optional defaults: Record<string, unknown>;
 ### domain?
 
 ```ts
-optional domain: string;
+optional domain?: string;
 ```
 
 ***
@@ -31,7 +31,7 @@ path: string;
 ### rules?
 
 ```ts
-optional rules: Record<string, string | RegExp>;
+optional rules?: Record<string, string | RegExp>;
 ```
 
 ***
@@ -39,5 +39,5 @@ optional rules: Record<string, string | RegExp>;
 ### strict?
 
 ```ts
-optional strict: boolean;
+optional strict?: boolean;
 ```

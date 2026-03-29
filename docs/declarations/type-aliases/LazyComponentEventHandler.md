@@ -1,4 +1,4 @@
-# Type Alias: LazyComponentEventHandler()\<IncomingEventType, OutgoingResponseType\>
+# Type Alias: LazyComponentEventHandler\<IncomingEventType, OutgoingResponseType\>
 
 ```ts
 type LazyComponentEventHandler<IncomingEventType, OutgoingResponseType> = () => Promise<ComponentEventHandlerType<IncomingEventType, OutgoingResponseType>>;

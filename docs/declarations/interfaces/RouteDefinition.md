@@ -28,7 +28,7 @@ Represents the structure of a route definition.
 ### bindings?
 
 ```ts
-optional bindings: Record<string, 
+optional bindings?: Record<string, 
   | string
   | BindingResolver
 | IBoundModel>;
@@ -39,7 +39,7 @@ optional bindings: Record<string,
 ### children?
 
 ```ts
-optional children: RouteDefinition<IncomingEventType, OutgoingResponseType>[];
+optional children?: RouteDefinition<IncomingEventType, OutgoingResponseType>[];
 ```
 
 ***
@@ -47,7 +47,7 @@ optional children: RouteDefinition<IncomingEventType, OutgoingResponseType>[];
 ### defaults?
 
 ```ts
-optional defaults: Record<string, unknown>;
+optional defaults?: Record<string, unknown>;
 ```
 
 ***
@@ -55,7 +55,7 @@ optional defaults: Record<string, unknown>;
 ### domain?
 
 ```ts
-optional domain: string | string[];
+optional domain?: string | string[];
 ```
 
 ***
@@ -63,7 +63,7 @@ optional domain: string | string[];
 ### excludeMiddleware?
 
 ```ts
-optional excludeMiddleware: PipeType<IncomingEventType, OutgoingResponseType>[];
+optional excludeMiddleware?: PipeType<IncomingEventType, OutgoingResponseType>[];
 ```
 
 ***
@@ -71,7 +71,7 @@ optional excludeMiddleware: PipeType<IncomingEventType, OutgoingResponseType>[];
 ### fallback?
 
 ```ts
-optional fallback: boolean;
+optional fallback?: boolean;
 ```
 
 ***
@@ -79,7 +79,7 @@ optional fallback: boolean;
 ### handler?
 
 ```ts
-optional handler: MixedEventHandler<IncomingEventType, OutgoingResponseType>;
+optional handler?: MixedEventHandler<IncomingEventType, OutgoingResponseType>;
 ```
 
 ***
@@ -87,7 +87,7 @@ optional handler: MixedEventHandler<IncomingEventType, OutgoingResponseType>;
 ### isInternalHeader?
 
 ```ts
-optional isInternalHeader: boolean;
+optional isInternalHeader?: boolean;
 ```
 
 ***
@@ -95,7 +95,7 @@ optional isInternalHeader: boolean;
 ### method?
 
 ```ts
-optional method: HttpMethod;
+optional method?: HttpMethod;
 ```
 
 ***
@@ -103,7 +103,7 @@ optional method: HttpMethod;
 ### methods?
 
 ```ts
-optional methods: HttpMethod[];
+optional methods?: HttpMethod[];
 ```
 
 ***
@@ -111,7 +111,7 @@ optional methods: HttpMethod[];
 ### middleware?
 
 ```ts
-optional middleware: MixedPipe<IncomingEventType, OutgoingResponseType>[];
+optional middleware?: MixedPipe<IncomingEventType, OutgoingResponseType>[];
 ```
 
 ***
@@ -119,7 +119,7 @@ optional middleware: MixedPipe<IncomingEventType, OutgoingResponseType>[];
 ### name?
 
 ```ts
-optional name: string;
+optional name?: string;
 ```
 
 ***
@@ -135,7 +135,15 @@ path: string | string[];
 ### protocol?
 
 ```ts
-optional protocol: string | string[];
+optional protocol?: string | string[];
+```
+
+***
+
+### protocolPolicy?
+
+```ts
+optional protocolPolicy?: ProtocolPolicy;
 ```
 
 ***
@@ -143,7 +151,7 @@ optional protocol: string | string[];
 ### redirect?
 
 ```ts
-optional redirect: 
+optional redirect?: 
   | string
   | Record<string, unknown>
 | RouteDefinitionRedirect<IncomingEventType, unknown>;
@@ -154,7 +162,7 @@ optional redirect:
 ### rules?
 
 ```ts
-optional rules: Record<string, string | RegExp>;
+optional rules?: Record<string, string | RegExp>;
 ```
 
 ***
@@ -162,5 +170,5 @@ optional rules: Record<string, string | RegExp>;
 ### strict?
 
 ```ts
-optional strict: boolean;
+optional strict?: boolean;
 ```

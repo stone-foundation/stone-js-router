@@ -11,7 +11,7 @@ Options for the `Routing` decorator, extending router configuration.
 ### bindings?
 
 ```ts
-optional bindings: Record<string, 
+optional bindings?: Record<string, 
   | BindingResolver
 | IBoundModel>;
 ```
@@ -20,32 +20,28 @@ Custom function bindings for specific route behaviors.
 
 #### Inherited from
 
-```ts
-Partial.bindings
-```
+[`RouterConfig`](../../../options/RouterBlueprint/interfaces/RouterConfig.md).[`bindings`](../../../options/RouterBlueprint/interfaces/RouterConfig.md#bindings)
 
 ***
 
 ### defaults?
 
 ```ts
-optional defaults: Record<string, unknown>;
+optional defaults?: Record<string, unknown>;
 ```
 
 Default parameter values for routes.
 
 #### Inherited from
 
-```ts
-Partial.defaults
-```
+[`RouterConfig`](../../../options/RouterBlueprint/interfaces/RouterConfig.md).[`defaults`](../../../options/RouterBlueprint/interfaces/RouterConfig.md#defaults)
 
 ***
 
 ### definitions?
 
 ```ts
-optional definitions: RouteDefinition<StoneIncomingEvent, unknown>[];
+optional definitions?: RouteDefinition<StoneIncomingEvent, unknown>[];
 ```
 
 Array of route definitions to be included in the router.
@@ -61,23 +57,21 @@ Partial.definitions
 ### dependencyResolver?
 
 ```ts
-optional dependencyResolver: DependencyResolver;
+optional dependencyResolver?: DependencyResolver;
 ```
 
 Resolver used to resolve dependencies.
 
 #### Inherited from
 
-```ts
-Partial.dependencyResolver
-```
+[`RouterConfig`](../../../options/RouterBlueprint/interfaces/RouterConfig.md).[`dependencyResolver`](../../../options/RouterBlueprint/interfaces/RouterConfig.md#dependencyresolver)
 
 ***
 
 ### dispatchers?
 
 ```ts
-optional dispatchers: IDispatchers<StoneIncomingEvent, unknown>;
+optional dispatchers?: IDispatchers<StoneIncomingEvent, unknown>;
 ```
 
 Dispatchers used for handling callable and controller-based routes.
@@ -93,23 +87,21 @@ Partial.dispatchers
 ### eventEmitter?
 
 ```ts
-optional eventEmitter: IEventEmitter;
+optional eventEmitter?: IEventEmitter;
 ```
 
 Custom event emitter for handling application events.
 
 #### Inherited from
 
-```ts
-Partial.eventEmitter
-```
+[`RouterConfig`](../../../options/RouterBlueprint/interfaces/RouterConfig.md).[`eventEmitter`](../../../options/RouterBlueprint/interfaces/RouterConfig.md#eventemitter)
 
 ***
 
 ### matchers?
 
 ```ts
-optional matchers: IMatcher<StoneIncomingEvent, unknown>[];
+optional matchers?: IMatcher<StoneIncomingEvent, unknown>[];
 ```
 
 List of matchers used to validate and match routes.
@@ -125,23 +117,21 @@ Partial.matchers
 ### maxDepth?
 
 ```ts
-optional maxDepth: number;
+optional maxDepth?: number;
 ```
 
 Maximum depth allowed in route definitions.
 
 #### Inherited from
 
-```ts
-Partial.maxDepth
-```
+[`RouterConfig`](../../../options/RouterBlueprint/interfaces/RouterConfig.md).[`maxDepth`](../../../options/RouterBlueprint/interfaces/RouterConfig.md#maxdepth)
 
 ***
 
 ### middleware?
 
 ```ts
-optional middleware: MixedPipe<StoneIncomingEvent, unknown>[];
+optional middleware?: MixedPipe<StoneIncomingEvent, unknown>[];
 ```
 
 List of middleware applied during route resolution.
@@ -157,61 +147,67 @@ Partial.middleware
 ### prefix?
 
 ```ts
-optional prefix: string;
+optional prefix?: string;
 ```
 
 Base path prefix applied to all routes.
 
 #### Inherited from
 
+[`RouterConfig`](../../../options/RouterBlueprint/interfaces/RouterConfig.md).[`prefix`](../../../options/RouterBlueprint/interfaces/RouterConfig.md#prefix)
+
+***
+
+### protocolPolicy?
+
 ```ts
-Partial.prefix
+optional protocolPolicy?: ProtocolPolicy;
 ```
+
+Protocol Policy for all routes.
+
+#### Inherited from
+
+[`RouterConfig`](../../../options/RouterBlueprint/interfaces/RouterConfig.md).[`protocolPolicy`](../../../options/RouterBlueprint/interfaces/RouterConfig.md#protocolpolicy)
 
 ***
 
 ### rules?
 
 ```ts
-optional rules: Record<string, RegExp>;
+optional rules?: Record<string, RegExp>;
 ```
 
 Custom rules for route matching, defined as regular expressions.
 
 #### Inherited from
 
-```ts
-Partial.rules
-```
+[`RouterConfig`](../../../options/RouterBlueprint/interfaces/RouterConfig.md).[`rules`](../../../options/RouterBlueprint/interfaces/RouterConfig.md#rules)
 
 ***
 
 ### skipMiddleware?
 
 ```ts
-optional skipMiddleware: boolean;
+optional skipMiddleware?: boolean;
 ```
 
 Skips middleware execution for specific routes.
 
 #### Inherited from
 
-```ts
-Partial.skipMiddleware
-```
+[`RouterConfig`](../../../options/RouterBlueprint/interfaces/RouterConfig.md).[`skipMiddleware`](../../../options/RouterBlueprint/interfaces/RouterConfig.md#skipmiddleware)
 
 ***
 
 ### strict?
 
 ```ts
-optional strict: boolean;
+optional strict?: boolean;
 ```
 
 Enables strict path matching.
 
 #### Inherited from
 
-```ts
-Partial.strict
-```
+[`RouterConfig`](../../../options/RouterBlueprint/interfaces/RouterConfig.md).[`strict`](../../../options/RouterBlueprint/interfaces/RouterConfig.md#strict)

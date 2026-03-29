@@ -11,7 +11,7 @@ Custom error for Integration layer operations.
 ### Constructor
 
 ```ts
-new RouteNotFoundError(message, options): RouteNotFoundError;
+new RouteNotFoundError(message, options?): RouteNotFoundError;
 ```
 
 #### Parameters
@@ -20,7 +20,7 @@ new RouteNotFoundError(message, options): RouteNotFoundError;
 
 `string`
 
-##### options
+##### options?
 
 `ErrorOptions` = `{}`
 

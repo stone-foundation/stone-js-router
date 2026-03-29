@@ -4,6 +4,7 @@ import {
   IBoundModel,
   IDispatchers,
   IIncomingEvent,
+  ProtocolPolicy,
   BindingResolver,
   RouteDefinition,
   DependencyResolver,
@@ -24,6 +25,7 @@ export interface RouteMapperOptions<
   prefix?: string
   strict?: boolean
   maxDepth: number
+  protocolPolicy?: ProtocolPolicy
   rules?: Record<string, RegExp>
   defaults?: Record<string, unknown>
   dependencyResolver?: DependencyResolver
@@ -186,6 +188,7 @@ export class RouteMapper<
     return {
       ...definition as RouteOptions<IncomingEventType, OutgoingResponseType>,
       children: undefined,
+      protocolPolicy: this.options.protocolPolicy,
       strict: definition.strict ?? this.options.strict,
       rules: { ...this.options.rules, ...definition.rules },
       bindings: { ...this.options.bindings, ...definition.bindings },

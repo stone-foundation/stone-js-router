@@ -17,7 +17,7 @@ Configuration options for the RouteMapper.
 ### bindings?
 
 ```ts
-optional bindings: Record<string, 
+optional bindings?: Record<string, 
   | BindingResolver
 | IBoundModel>;
 ```
@@ -27,7 +27,7 @@ optional bindings: Record<string,
 ### defaults?
 
 ```ts
-optional defaults: Record<string, unknown>;
+optional defaults?: Record<string, unknown>;
 ```
 
 ***
@@ -35,7 +35,7 @@ optional defaults: Record<string, unknown>;
 ### dependencyResolver?
 
 ```ts
-optional dependencyResolver: DependencyResolver;
+optional dependencyResolver?: DependencyResolver;
 ```
 
 ***
@@ -67,7 +67,15 @@ maxDepth: number;
 ### prefix?
 
 ```ts
-optional prefix: string;
+optional prefix?: string;
+```
+
+***
+
+### protocolPolicy?
+
+```ts
+optional protocolPolicy?: ProtocolPolicy;
 ```
 
 ***
@@ -75,7 +83,7 @@ optional prefix: string;
 ### rules?
 
 ```ts
-optional rules: Record<string, RegExp>;
+optional rules?: Record<string, RegExp>;
 ```
 
 ***
@@ -83,5 +91,5 @@ optional rules: Record<string, RegExp>;
 ### strict?
 
 ```ts
-optional strict: boolean;
+optional strict?: boolean;
 ```

@@ -16,7 +16,7 @@ Initializes a new instance of `RouterCommand`.
 
 ##### container
 
-`Container`
+`IContainer`
 
 The dependency injection container for resolving the Router instance.
 

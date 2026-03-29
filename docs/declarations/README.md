@@ -60,5 +60,6 @@
 - [LazyComponentEventHandlerClass](type-aliases/LazyComponentEventHandlerClass.md)
 - [LazyFactoryComponentEventHandler](type-aliases/LazyFactoryComponentEventHandler.md)
 - [MixedEventHandler](type-aliases/MixedEventHandler.md)
+- [ProtocolPolicy](type-aliases/ProtocolPolicy.md)
 - [RouteDefinitionRedirect](type-aliases/RouteDefinitionRedirect.md)
 - [RouteParams](type-aliases/RouteParams.md)

@@ -14,7 +14,7 @@ Defines the structure for route dispatchers.
 
 ## Properties
 
-### dispatch()
+### dispatch
 
 ```ts
 dispatch: (context) => Promiseable<OutgoingResponseType>;
@@ -32,7 +32,7 @@ dispatch: (context) => Promiseable<OutgoingResponseType>;
 
 ***
 
-### getName()
+### getName
 
 ```ts
 getName: (route) => Promiseable<string>;

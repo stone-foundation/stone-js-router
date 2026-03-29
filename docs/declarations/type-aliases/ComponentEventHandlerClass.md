@@ -1,4 +1,4 @@
-# Type Alias: ComponentEventHandlerClass()\<IncomingEventType, OutgoingResponseType\>
+# Type Alias: ComponentEventHandlerClass\<IncomingEventType, OutgoingResponseType\>
 
 ```ts
 type ComponentEventHandlerClass<IncomingEventType, OutgoingResponseType> = (...args) => IComponentEventHandler<IncomingEventType, OutgoingResponseType>;

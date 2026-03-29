@@ -10,9 +10,9 @@ A method decorator for defining HTTP PUT routes.
 
 ### path
 
-The route path for the PUT endpoint.
+`string` \| `string`[]
 
-`string` | `string`[]
+The route path for the PUT endpoint.
 
 ### options?
 

@@ -7,7 +7,7 @@ Head context.
 ### description?
 
 ```ts
-optional description: string;
+optional description?: string;
 ```
 
 ***
@@ -15,7 +15,7 @@ optional description: string;
 ### links?
 
 ```ts
-optional links: HTMLLinkDescriptor[];
+optional links?: HTMLLinkDescriptor[];
 ```
 
 ***
@@ -23,7 +23,7 @@ optional links: HTMLLinkDescriptor[];
 ### metas?
 
 ```ts
-optional metas: HTMLMetaDescriptor[];
+optional metas?: HTMLMetaDescriptor[];
 ```
 
 ***
@@ -31,7 +31,7 @@ optional metas: HTMLMetaDescriptor[];
 ### scripts?
 
 ```ts
-optional scripts: HTMLScriptDescriptor[];
+optional scripts?: HTMLScriptDescriptor[];
 ```
 
 ***
@@ -39,7 +39,7 @@ optional scripts: HTMLScriptDescriptor[];
 ### styles?
 
 ```ts
-optional styles: HTMLStyleDescriptor[];
+optional styles?: HTMLStyleDescriptor[];
 ```
 
 ***
@@ -47,5 +47,5 @@ optional styles: HTMLStyleDescriptor[];
 ### title?
 
 ```ts
-optional title: string;
+optional title?: string;
 ```

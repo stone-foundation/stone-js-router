@@ -4,7 +4,7 @@ Represents the yargs argument vector.
 
 ## Properties
 
-### positional()
+### positional
 
 ```ts
 positional: (name, options) => IArgv;

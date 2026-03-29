@@ -1,4 +1,4 @@
-# Type Alias: IMatcher()\<IncomingEventType, OutgoingResponseType\>
+# Type Alias: IMatcher\<IncomingEventType, OutgoingResponseType\>
 
 ```ts
 type IMatcher<IncomingEventType, OutgoingResponseType> = (options) => boolean;

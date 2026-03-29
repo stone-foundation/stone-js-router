@@ -10,9 +10,9 @@ A method decorator for defining a route that responds to any HTTP method.
 
 ### path
 
-The route path for the endpoint.
+`string` \| `string`[]
 
-`string` | `string`[]
+The route path for the endpoint.
 
 ### options?
 

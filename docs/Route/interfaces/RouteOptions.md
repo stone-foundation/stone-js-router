@@ -27,7 +27,7 @@ Defines the options for creating a `Route` instance.
 ### bindings?
 
 ```ts
-optional bindings: Record<string, 
+optional bindings?: Record<string, 
   | string
   | BindingResolver
 | IBoundModel>;
@@ -42,7 +42,7 @@ optional bindings: Record<string,
 ### children?
 
 ```ts
-optional children: undefined;
+optional children?: undefined;
 ```
 
 #### Overrides
@@ -54,7 +54,7 @@ optional children: undefined;
 ### defaults?
 
 ```ts
-optional defaults: Record<string, unknown>;
+optional defaults?: Record<string, unknown>;
 ```
 
 #### Inherited from
@@ -66,7 +66,7 @@ optional defaults: Record<string, unknown>;
 ### domain?
 
 ```ts
-optional domain: string;
+optional domain?: string;
 ```
 
 #### Overrides
@@ -78,7 +78,7 @@ optional domain: string;
 ### excludeMiddleware?
 
 ```ts
-optional excludeMiddleware: PipeType<IncomingEventType, OutgoingResponseType>[];
+optional excludeMiddleware?: PipeType<IncomingEventType, OutgoingResponseType>[];
 ```
 
 #### Inherited from
@@ -90,7 +90,7 @@ optional excludeMiddleware: PipeType<IncomingEventType, OutgoingResponseType>[];
 ### fallback?
 
 ```ts
-optional fallback: boolean;
+optional fallback?: boolean;
 ```
 
 #### Inherited from
@@ -102,7 +102,7 @@ optional fallback: boolean;
 ### handler?
 
 ```ts
-optional handler: MixedEventHandler<IncomingEventType, OutgoingResponseType>;
+optional handler?: MixedEventHandler<IncomingEventType, OutgoingResponseType>;
 ```
 
 #### Inherited from
@@ -114,7 +114,7 @@ optional handler: MixedEventHandler<IncomingEventType, OutgoingResponseType>;
 ### isInternalHeader?
 
 ```ts
-optional isInternalHeader: boolean;
+optional isInternalHeader?: boolean;
 ```
 
 #### Inherited from
@@ -138,7 +138,7 @@ method: HttpMethod;
 ### methods?
 
 ```ts
-optional methods: undefined;
+optional methods?: undefined;
 ```
 
 #### Overrides
@@ -150,7 +150,7 @@ optional methods: undefined;
 ### middleware?
 
 ```ts
-optional middleware: MixedPipe<IncomingEventType, OutgoingResponseType>[];
+optional middleware?: MixedPipe<IncomingEventType, OutgoingResponseType>[];
 ```
 
 #### Inherited from
@@ -162,7 +162,7 @@ optional middleware: MixedPipe<IncomingEventType, OutgoingResponseType>[];
 ### name?
 
 ```ts
-optional name: string;
+optional name?: string;
 ```
 
 #### Inherited from
@@ -186,7 +186,7 @@ path: string;
 ### protocol?
 
 ```ts
-optional protocol: string;
+optional protocol?: string;
 ```
 
 #### Overrides
@@ -195,10 +195,22 @@ optional protocol: string;
 
 ***
 
+### protocolPolicy?
+
+```ts
+optional protocolPolicy?: ProtocolPolicy;
+```
+
+#### Inherited from
+
+[`RouteDefinition`](../../declarations/interfaces/RouteDefinition.md).[`protocolPolicy`](../../declarations/interfaces/RouteDefinition.md#protocolpolicy)
+
+***
+
 ### redirect?
 
 ```ts
-optional redirect: 
+optional redirect?: 
   | string
   | Record<string, unknown>
 | RouteDefinitionRedirect<IncomingEventType, unknown>;
@@ -213,7 +225,7 @@ optional redirect:
 ### rules?
 
 ```ts
-optional rules: Record<string, string | RegExp>;
+optional rules?: Record<string, string | RegExp>;
 ```
 
 #### Inherited from
@@ -225,7 +237,7 @@ optional rules: Record<string, string | RegExp>;
 ### strict?
 
 ```ts
-optional strict: boolean;
+optional strict?: boolean;
 ```
 
 #### Inherited from

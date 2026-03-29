@@ -1,4 +1,4 @@
-# Type Alias: LazyFactoryComponentEventHandler()\<IncomingEventType, OutgoingResponseType\>
+# Type Alias: LazyFactoryComponentEventHandler\<IncomingEventType, OutgoingResponseType\>
 
 ```ts
 type LazyFactoryComponentEventHandler<IncomingEventType, OutgoingResponseType> = () => Promise<FactoryComponentEventHandler<IncomingEventType, OutgoingResponseType>>;

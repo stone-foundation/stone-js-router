@@ -21,7 +21,7 @@ The type representing the outgoing response.
 ### isClass?
 
 ```ts
-optional isClass: boolean;
+optional isClass?: boolean;
 ```
 
 ***
@@ -29,7 +29,7 @@ optional isClass: boolean;
 ### isComponent?
 
 ```ts
-optional isComponent: boolean;
+optional isComponent?: boolean;
 ```
 
 ***
@@ -37,7 +37,7 @@ optional isComponent: boolean;
 ### isFactory?
 
 ```ts
-optional isFactory: boolean;
+optional isFactory?: boolean;
 ```
 
 ***
@@ -45,7 +45,7 @@ optional isFactory: boolean;
 ### layout?
 
 ```ts
-optional layout: unknown;
+optional layout?: unknown;
 ```
 
 ***
@@ -53,7 +53,7 @@ optional layout: unknown;
 ### lazy?
 
 ```ts
-optional lazy: boolean;
+optional lazy?: boolean;
 ```
 
 ***
