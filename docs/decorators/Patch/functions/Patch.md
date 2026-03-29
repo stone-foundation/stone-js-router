@@ -10,9 +10,9 @@ A method decorator for defining HTTP PATCH routes.
 
 ### path
 
-The route path for the PATCH endpoint.
+`string` \| `string`[]
 
-`string` | `string`[]
+The route path for the PATCH endpoint.
 
 ### options?
 

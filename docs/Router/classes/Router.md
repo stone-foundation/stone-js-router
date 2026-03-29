@@ -52,15 +52,16 @@ Registers a route that supports the `GET` and `HEAD` methods.
 
 ##### path
 
-The route path.
+`string` \| `string`[]
 
-`string` | `string`[]
+The route path.
 
 ##### handlerOrDefinition
 
-The route handler or functional definition.
+  \| [`FunctionalRouteDefinition`](../../declarations/type-aliases/FunctionalRouteDefinition.md)\<`IncomingEventType`, `OutgoingResponseType`\>
+  \| [`FunctionalEventHandler`](../../declarations/type-aliases/FunctionalEventHandler.md)\<`IncomingEventType`, `OutgoingResponseType`\>
 
-[`FunctionalRouteDefinition`](../../declarations/type-aliases/FunctionalRouteDefinition.md)\<`IncomingEventType`, `OutgoingResponseType`\> | [`FunctionalEventHandler`](../../declarations/type-aliases/FunctionalEventHandler.md)\<`IncomingEventType`, `OutgoingResponseType`\>
+The route handler or functional definition.
 
 #### Returns
 
@@ -82,15 +83,16 @@ Registers a route that supports all HTTP methods.
 
 ##### path
 
-The route path.
+`string` \| `string`[]
 
-`string` | `string`[]
+The route path.
 
 ##### handlerOrDefinition
 
-The route handler or functional definition.
+  \| [`FunctionalRouteDefinition`](../../declarations/type-aliases/FunctionalRouteDefinition.md)\<`IncomingEventType`, `OutgoingResponseType`\>
+  \| [`FunctionalEventHandler`](../../declarations/type-aliases/FunctionalEventHandler.md)\<`IncomingEventType`, `OutgoingResponseType`\>
 
-[`FunctionalRouteDefinition`](../../declarations/type-aliases/FunctionalRouteDefinition.md)\<`IncomingEventType`, `OutgoingResponseType`\> | [`FunctionalEventHandler`](../../declarations/type-aliases/FunctionalEventHandler.md)\<`IncomingEventType`, `OutgoingResponseType`\>
+The route handler or functional definition.
 
 #### Returns
 
@@ -160,15 +162,16 @@ Registers a route that supports the `DELETE` method.
 
 ##### path
 
-The route path.
+`string` \| `string`[]
 
-`string` | `string`[]
+The route path.
 
 ##### handlerOrDefinition
 
-The route handler or functional definition.
+  \| [`FunctionalRouteDefinition`](../../declarations/type-aliases/FunctionalRouteDefinition.md)\<`IncomingEventType`, `OutgoingResponseType`\>
+  \| [`FunctionalEventHandler`](../../declarations/type-aliases/FunctionalEventHandler.md)\<`IncomingEventType`, `OutgoingResponseType`\>
 
-[`FunctionalRouteDefinition`](../../declarations/type-aliases/FunctionalRouteDefinition.md)\<`IncomingEventType`, `OutgoingResponseType`\> | [`FunctionalEventHandler`](../../declarations/type-aliases/FunctionalEventHandler.md)\<`IncomingEventType`, `OutgoingResponseType`\>
+The route handler or functional definition.
 
 #### Returns
 
@@ -334,15 +337,16 @@ Registers a route that supports the `GET` and `HEAD` methods.
 
 ##### path
 
-The route path.
+`string` \| `string`[]
 
-`string` | `string`[]
+The route path.
 
 ##### handlerOrDefinition
 
-The route handler or functional definition.
+  \| [`FunctionalRouteDefinition`](../../declarations/type-aliases/FunctionalRouteDefinition.md)\<`IncomingEventType`, `OutgoingResponseType`\>
+  \| [`FunctionalEventHandler`](../../declarations/type-aliases/FunctionalEventHandler.md)\<`IncomingEventType`, `OutgoingResponseType`\>
 
-[`FunctionalRouteDefinition`](../../declarations/type-aliases/FunctionalRouteDefinition.md)\<`IncomingEventType`, `OutgoingResponseType`\> | [`FunctionalEventHandler`](../../declarations/type-aliases/FunctionalEventHandler.md)\<`IncomingEventType`, `OutgoingResponseType`\>
+The route handler or functional definition.
 
 #### Returns
 
@@ -356,16 +360,16 @@ The router instance for chaining.
 
 ```ts
 getCurrentRoute(): 
-  | undefined
-| Route<IncomingEventType, OutgoingResponseType>;
+  | Route<IncomingEventType, OutgoingResponseType>
+  | undefined;
 ```
 
 Retrieves the currently active route.
 
 #### Returns
 
-  \| `undefined`
   \| [`Route`](../../Route/classes/Route.md)\<`IncomingEventType`, `OutgoingResponseType`\>
+  \| `undefined`
 
 The current route, or `undefined` if no route is active.
 
@@ -374,14 +378,14 @@ The current route, or `undefined` if no route is active.
 ### getCurrentRouteName()
 
 ```ts
-getCurrentRouteName(): undefined | string;
+getCurrentRouteName(): string | undefined;
 ```
 
 Retrieves the name of the currently active route.
 
 #### Returns
 
-`undefined` \| `string`
+`string` \| `undefined`
 
 The name of the current route, or `undefined` if no route is active.
 
@@ -390,7 +394,7 @@ The name of the current route, or `undefined` if no route is active.
 ### getParam()
 
 ```ts
-getParam<TReturn>(name, fallback?): undefined | TReturn;
+getParam<TReturn>(name, fallback?): TReturn | undefined;
 ```
 
 Retrieves a specific parameter from the current route.
@@ -419,7 +423,7 @@ An optional fallback value to return if the parameter is not found.
 
 #### Returns
 
-`undefined` \| `TReturn`
+`TReturn` \| `undefined`
 
 The value of the parameter, or the fallback value if the parameter is not found.
 
@@ -429,16 +433,16 @@ The value of the parameter, or the fallback value if the parameter is not found.
 
 ```ts
 getParams(): 
-  | undefined
-  | RouteParams;
+  | RouteParams
+  | undefined;
 ```
 
 Retrieves the parameters of the current route.
 
 #### Returns
 
-  \| `undefined`
   \| [`RouteParams`](../../declarations/type-aliases/RouteParams.md)
+  \| `undefined`
 
 An object containing the parameters of the current route, or `undefined` if no route is active.
 
@@ -502,9 +506,9 @@ Checks if the router contains a route with the given name(s).
 
 ##### name
 
-A route name or an array of route names to check.
+`string` \| `string`[]
 
-`string` | `string`[]
+A route name or an array of route names to check.
 
 #### Returns
 
@@ -553,15 +557,16 @@ Adds a route to the router for specific HTTP methods.
 
 ##### path
 
-The path for the route.
+`string` \| `string`[]
 
-`string` | `string`[]
+The path for the route.
 
 ##### handlerOrDefinition
 
-The handler to execute or a route definition object.
+  \| [`FunctionalRouteDefinition`](../../declarations/type-aliases/FunctionalRouteDefinition.md)\<`IncomingEventType`, `OutgoingResponseType`\>
+  \| [`FunctionalEventHandler`](../../declarations/type-aliases/FunctionalEventHandler.md)\<`IncomingEventType`, `OutgoingResponseType`\>
 
-[`FunctionalRouteDefinition`](../../declarations/type-aliases/FunctionalRouteDefinition.md)\<`IncomingEventType`, `OutgoingResponseType`\> | [`FunctionalEventHandler`](../../declarations/type-aliases/FunctionalEventHandler.md)\<`IncomingEventType`, `OutgoingResponseType`\>
+The handler to execute or a route definition object.
 
 ##### methods
 
@@ -589,9 +594,10 @@ Navigates to a specific route in the browser environment.
 
 ##### pathOrOptions
 
-The path or navigation options, including route name and parameters.
+  \| `string`
+  \| [`NavigateOptions`](../../declarations/interfaces/NavigateOptions.md)
 
-`string` | [`NavigateOptions`](../../declarations/interfaces/NavigateOptions.md)
+The path or navigation options, including route name and parameters.
 
 ##### replace?
 
@@ -697,15 +703,16 @@ Registers a route that supports the `OPTIONS` method.
 
 ##### path
 
-The route path.
+`string` \| `string`[]
 
-`string` | `string`[]
+The route path.
 
 ##### handlerOrDefinition
 
-The route handler or functional definition.
+  \| [`FunctionalRouteDefinition`](../../declarations/type-aliases/FunctionalRouteDefinition.md)\<`IncomingEventType`, `OutgoingResponseType`\>
+  \| [`FunctionalEventHandler`](../../declarations/type-aliases/FunctionalEventHandler.md)\<`IncomingEventType`, `OutgoingResponseType`\>
 
-[`FunctionalRouteDefinition`](../../declarations/type-aliases/FunctionalRouteDefinition.md)\<`IncomingEventType`, `OutgoingResponseType`\> | [`FunctionalEventHandler`](../../declarations/type-aliases/FunctionalEventHandler.md)\<`IncomingEventType`, `OutgoingResponseType`\>
+The route handler or functional definition.
 
 #### Returns
 
@@ -728,9 +735,9 @@ Route is considered as a page route.
 
 ##### path
 
-The route path.
+`string` \| `string`[]
 
-`string` | `string`[]
+The route path.
 
 ##### definition
 
@@ -758,15 +765,16 @@ Registers a route that supports the `PATCH` method.
 
 ##### path
 
-The route path.
+`string` \| `string`[]
 
-`string` | `string`[]
+The route path.
 
 ##### handlerOrDefinition
 
-The route handler or functional definition.
+  \| [`FunctionalRouteDefinition`](../../declarations/type-aliases/FunctionalRouteDefinition.md)\<`IncomingEventType`, `OutgoingResponseType`\>
+  \| [`FunctionalEventHandler`](../../declarations/type-aliases/FunctionalEventHandler.md)\<`IncomingEventType`, `OutgoingResponseType`\>
 
-[`FunctionalRouteDefinition`](../../declarations/type-aliases/FunctionalRouteDefinition.md)\<`IncomingEventType`, `OutgoingResponseType`\> | [`FunctionalEventHandler`](../../declarations/type-aliases/FunctionalEventHandler.md)\<`IncomingEventType`, `OutgoingResponseType`\>
+The route handler or functional definition.
 
 #### Returns
 
@@ -788,15 +796,16 @@ Registers a route that supports the `POST` method.
 
 ##### path
 
-The route path.
+`string` \| `string`[]
 
-`string` | `string`[]
+The route path.
 
 ##### handlerOrDefinition
 
-The route handler or functional definition.
+  \| [`FunctionalRouteDefinition`](../../declarations/type-aliases/FunctionalRouteDefinition.md)\<`IncomingEventType`, `OutgoingResponseType`\>
+  \| [`FunctionalEventHandler`](../../declarations/type-aliases/FunctionalEventHandler.md)\<`IncomingEventType`, `OutgoingResponseType`\>
 
-[`FunctionalRouteDefinition`](../../declarations/type-aliases/FunctionalRouteDefinition.md)\<`IncomingEventType`, `OutgoingResponseType`\> | [`FunctionalEventHandler`](../../declarations/type-aliases/FunctionalEventHandler.md)\<`IncomingEventType`, `OutgoingResponseType`\>
+The route handler or functional definition.
 
 #### Returns
 
@@ -818,15 +827,16 @@ Registers a route that supports the `PUT` method.
 
 ##### path
 
-The route path.
+`string` \| `string`[]
 
-`string` | `string`[]
+The route path.
 
 ##### handlerOrDefinition
 
-The route handler or functional definition.
+  \| [`FunctionalRouteDefinition`](../../declarations/type-aliases/FunctionalRouteDefinition.md)\<`IncomingEventType`, `OutgoingResponseType`\>
+  \| [`FunctionalEventHandler`](../../declarations/type-aliases/FunctionalEventHandler.md)\<`IncomingEventType`, `OutgoingResponseType`\>
 
-[`FunctionalRouteDefinition`](../../declarations/type-aliases/FunctionalRouteDefinition.md)\<`IncomingEventType`, `OutgoingResponseType`\> | [`FunctionalEventHandler`](../../declarations/type-aliases/FunctionalEventHandler.md)\<`IncomingEventType`, `OutgoingResponseType`\>
+The route handler or functional definition.
 
 #### Returns
 
@@ -910,9 +920,10 @@ Adds global middleware to the router.
 
 ##### middleware
 
-A single middleware or an array of middleware to add.
+  \| `MixedPipe`\<`IncomingEventType`, `OutgoingResponseType`\>
+  \| `MixedPipe`\<`IncomingEventType`, `OutgoingResponseType`\>[]
 
-`MixedPipe`\<`IncomingEventType`, `OutgoingResponseType`\> | `MixedPipe`\<`IncomingEventType`, `OutgoingResponseType`\>[]
+A single middleware or an array of middleware to add.
 
 #### Returns
 
@@ -934,15 +945,16 @@ Attaches middleware to specific routes by their name.
 
 ##### name
 
-A single route name or an array of route names to attach the middleware to.
+`string` \| `string`[]
 
-`string` | `string`[]
+A single route name or an array of route names to attach the middleware to.
 
 ##### middleware
 
-A single middleware or an array of middleware to attach.
+  \| `MixedPipe`\<`IncomingEventType`, `OutgoingResponseType`\>
+  \| `MixedPipe`\<`IncomingEventType`, `OutgoingResponseType`\>[]
 
-`MixedPipe`\<`IncomingEventType`, `OutgoingResponseType`\> | `MixedPipe`\<`IncomingEventType`, `OutgoingResponseType`\>[]
+A single middleware or an array of middleware to attach.
 
 #### Returns
 

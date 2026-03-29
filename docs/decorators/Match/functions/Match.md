@@ -17,7 +17,7 @@ Automatically registers the method with route definitions using metadata.
 
 ### path
 
-`string` | `string`[]
+`string` \| `string`[]
 
 ### options?
 

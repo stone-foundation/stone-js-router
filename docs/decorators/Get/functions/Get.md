@@ -11,7 +11,7 @@ Uses the `Match` decorator internally to register the route with the HTTP `GET` 
 
 ### path
 
-`string` | `string`[]
+`string` \| `string`[]
 
 ### options?
 

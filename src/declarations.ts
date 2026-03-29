@@ -451,6 +451,11 @@ export interface PageRouteDefinition<
 }
 
 /**
+ * Represents the route protocol Policy
+ */
+export type ProtocolPolicy = 'inherit' | 'force-http' | 'force-https'
+
+/**
  * Represents the structure of a route definition.
  */
 export interface RouteDefinition<
@@ -466,6 +471,7 @@ export interface RouteDefinition<
   domain?: string | string[]
   isInternalHeader?: boolean
   protocol?: string | string[]
+  protocolPolicy?: ProtocolPolicy
   defaults?: Record<string, unknown>
   rules?: Record<string, RegExp | string>
   bindings?: Record<string, IBoundModel | BindingResolver | string>
@@ -497,6 +503,9 @@ export interface RouterOptions<
 
   /** Enables strict path matching. */
   strict?: boolean
+
+  /** Protocol Policy for all routes. */
+  protocolPolicy?: ProtocolPolicy
 
   /** Maximum depth allowed in route definitions. */
   maxDepth: number

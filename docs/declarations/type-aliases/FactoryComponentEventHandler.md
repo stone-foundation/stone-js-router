@@ -1,4 +1,4 @@
-# Type Alias: FactoryComponentEventHandler()\<IncomingEventType, OutgoingResponseType\>
+# Type Alias: FactoryComponentEventHandler\<IncomingEventType, OutgoingResponseType\>
 
 ```ts
 type FactoryComponentEventHandler<IncomingEventType, OutgoingResponseType> = (resolver?) => IComponentEventHandler<IncomingEventType, OutgoingResponseType>;
@@ -24,7 +24,9 @@ The type representing the outgoing response.
 
 ### resolver?
 
-[`DependencyResolver`](../interfaces/DependencyResolver.md) | `IContainer` | `any`
+  \| [`DependencyResolver`](../interfaces/DependencyResolver.md)
+  \| `IContainer`
+  \| `any`
 
 ## Returns
 

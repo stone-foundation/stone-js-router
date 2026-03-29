@@ -13,7 +13,7 @@ Standalone interface for incoming events.
 ### body?
 
 ```ts
-optional body: unknown;
+optional body?: unknown;
 ```
 
 ***
@@ -21,15 +21,15 @@ optional body: unknown;
 ### decodedPathname?
 
 ```ts
-optional decodedPathname: string;
+optional decodedPathname?: string;
 ```
 
 ***
 
-### getUri()
+### getUri
 
 ```ts
-getUri: (withDomain) => undefined | string;
+getUri: (withDomain) => string | undefined;
 ```
 
 #### Parameters
@@ -40,7 +40,7 @@ getUri: (withDomain) => undefined | string;
 
 #### Returns
 
-`undefined` \| `string`
+`string` \| `undefined`
 
 ***
 
@@ -52,7 +52,7 @@ host: string;
 
 ***
 
-### isMethod()
+### isMethod
 
 ```ts
 isMethod: (method) => boolean;
@@ -73,7 +73,7 @@ isMethod: (method) => boolean;
 ### isSecure?
 
 ```ts
-readonly optional isSecure: boolean;
+readonly optional isSecure?: boolean;
 ```
 
 ***
@@ -97,12 +97,12 @@ pathname: string;
 ### query?
 
 ```ts
-optional query: URLSearchParams;
+optional query?: URLSearchParams;
 ```
 
 ***
 
-### setRouteResolver()
+### setRouteResolver
 
 ```ts
 setRouteResolver: <U, V>(resolver) => void;

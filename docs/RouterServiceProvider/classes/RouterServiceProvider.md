@@ -30,7 +30,7 @@ Constructs a new `RouterServiceProvider` instance.
 
 ##### container
 
-`Container`
+`IContainer`
 
 The container to register the Router service provider with.
 

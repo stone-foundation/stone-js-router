@@ -56,26 +56,6 @@ Optional route definition options.
 
 The RouterBlueprint.
 
-### Param
-
-The EventHandler module.
-
-### Param
-
-Route definition options.
-
-### Param
-
-Indicates that the handler is a factory function.
-
-### Param
-
-Indicates that the handler is a class.
-
-### Param
-
-The action name for the event handler.
-
 ## Call Signature
 
 ```ts
@@ -110,26 +90,6 @@ Route definition options with isFactory set to true.
 
 The RouterBlueprint.
 
-### Param
-
-The EventHandler module.
-
-### Param
-
-Route definition options.
-
-### Param
-
-Indicates that the handler is a factory function.
-
-### Param
-
-Indicates that the handler is a class.
-
-### Param
-
-The action name for the event handler.
-
 ## Call Signature
 
 ```ts
@@ -163,23 +123,3 @@ Route definition options with isClass and action.
 [`RouterBlueprint`](../../../options/RouterBlueprint/interfaces/RouterBlueprint.md)\<[`StoneIncomingEvent`](../../../declarations/interfaces/StoneIncomingEvent.md)\>
 
 The RouterBlueprint.
-
-### Param
-
-The EventHandler module.
-
-### Param
-
-Route definition options.
-
-### Param
-
-Indicates that the handler is a factory function.
-
-### Param
-
-Indicates that the handler is a class.
-
-### Param
-
-The action name for the event handler.

@@ -22,10 +22,10 @@ handle: FunctionalEventHandler<W, X>;
 
 ***
 
-### match()?
+### match?
 
 ```ts
-optional match: (event) => boolean;
+optional match?: (event) => boolean;
 ```
 
 #### Parameters

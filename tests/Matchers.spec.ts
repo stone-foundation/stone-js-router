@@ -84,53 +84,51 @@ describe('Matchers', () => {
 
   describe('protocolMatcher', () => {
     it('should return false if route isHttpOnly and event is secure', () => {
-      mockRoute.isHttpOnly = vi.fn().mockReturnValue(true)
+      mockRoute.getOption = vi.fn().mockReturnValue('force-http')
       // @ts-expect-error - isSecure is read-only
       mockEvent.isSecure = true
 
       const result = protocolMatcher(matcherOptions)
       expect(result).toBe(false)
-      expect(mockRoute.isHttpOnly).toHaveBeenCalled()
+      expect(mockRoute.getOption).toHaveBeenCalled()
     })
 
     it('should return true if route isHttpOnly and event is not secure', () => {
-      mockRoute.isHttpOnly = vi.fn().mockReturnValue(true)
+      mockRoute.getOption = vi.fn().mockReturnValue('http')
       // @ts-expect-error - isSecure is read-only
       mockEvent.isSecure = false
 
       const result = protocolMatcher(matcherOptions)
       expect(result).toBe(true)
-      expect(mockRoute.isHttpOnly).toHaveBeenCalled()
+      expect(mockRoute.getOption).toHaveBeenCalled()
     })
 
     it('should return true if route isHttpsOnly and event is secure', () => {
-      mockRoute.isHttpsOnly = vi.fn().mockReturnValue(true)
+      mockRoute.getOption = vi.fn().mockReturnValue('https')
       // @ts-expect-error - isSecure is read-only
       mockEvent.isSecure = true
 
       const result = protocolMatcher(matcherOptions)
       expect(result).toBe(true)
-      expect(mockRoute.isHttpsOnly).toHaveBeenCalled()
+      expect(mockRoute.getOption).toHaveBeenCalled()
     })
 
     it('should return false if route isHttpsOnly and event is not secure', () => {
-      mockRoute.isHttpsOnly = vi.fn().mockReturnValue(true)
+      mockRoute.getOption = vi.fn().mockReturnValue('force-https')
       // @ts-expect-error - isSecure is read-only
       mockEvent.isSecure = false
 
       const result = protocolMatcher(matcherOptions)
       expect(result).toBe(false)
-      expect(mockRoute.isHttpsOnly).toHaveBeenCalled()
+      expect(mockRoute.getOption).toHaveBeenCalled()
     })
 
     it('should return true if no protocol restrictions are set', () => {
-      mockRoute.isHttpOnly = vi.fn().mockReturnValue(false)
-      mockRoute.isHttpsOnly = vi.fn().mockReturnValue(false)
+      mockRoute.getOption = vi.fn().mockReturnValue(undefined)
 
       const result = protocolMatcher(matcherOptions)
       expect(result).toBe(true)
-      expect(mockRoute.isHttpOnly).toHaveBeenCalled()
-      expect(mockRoute.isHttpsOnly).toHaveBeenCalled()
+      expect(mockRoute.getOption).toHaveBeenCalled()
     })
   })
 

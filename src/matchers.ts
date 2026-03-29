@@ -79,11 +79,12 @@ export function protocolMatcher<
   IncomingEventType extends IIncomingEvent = IIncomingEvent,
   OutgoingResponseType = unknown
 > ({ route, event }: MatcherOptions<IncomingEventType, OutgoingResponseType>): boolean {
-  if (route.isHttpOnly()) {
+  // Important: Always rely on route.options or route.getOption for protocol matching
+  if (route.getOption('protocolPolicy') === 'force-http') { // Http only matcher
     return event.isSecure !== true
-  } else if (route.isHttpsOnly()) {
+  } else if (route.getOption('protocolPolicy') === 'force-https') { // Https only matcher
     return event.isSecure === true
-  } else {
+  } else { // No specific protocol matcher
     return true
   }
 }

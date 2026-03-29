@@ -1,7 +1,7 @@
 # Function: Controller()
 
 ```ts
-function Controller(path, options?): ClassDecorator;
+function Controller(path?, options?): ClassDecorator;
 ```
 
 A class decorator for defining a controller with a common base path.
@@ -9,7 +9,7 @@ Configures the class as a singleton service.
 
 ## Parameters
 
-### path
+### path?
 
 `string` = `'/'`
 

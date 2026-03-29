@@ -27,7 +27,7 @@ Represents a page route definition.
 ### bindings?
 
 ```ts
-optional bindings: Record<string, 
+optional bindings?: Record<string, 
   | string
   | BindingResolver
 | IBoundModel>;
@@ -35,14 +35,14 @@ optional bindings: Record<string,
 
 #### Inherited from
 
-[`RouteDefinition`](RouteDefinition.md).[`bindings`](RouteDefinition.md#bindings)
+[`RouteOptions`](../../Route/interfaces/RouteOptions.md).[`bindings`](../../Route/interfaces/RouteOptions.md#bindings)
 
 ***
 
 ### children?
 
 ```ts
-optional children: RouteDefinition<IncomingEventType, OutgoingResponseType>[];
+optional children?: RouteDefinition<IncomingEventType, OutgoingResponseType>[];
 ```
 
 #### Inherited from
@@ -54,7 +54,7 @@ optional children: RouteDefinition<IncomingEventType, OutgoingResponseType>[];
 ### defaults?
 
 ```ts
-optional defaults: Record<string, unknown>;
+optional defaults?: Record<string, unknown>;
 ```
 
 #### Inherited from
@@ -66,7 +66,7 @@ optional defaults: Record<string, unknown>;
 ### domain?
 
 ```ts
-optional domain: string | string[];
+optional domain?: string | string[];
 ```
 
 #### Inherited from
@@ -78,7 +78,7 @@ optional domain: string | string[];
 ### excludeMiddleware?
 
 ```ts
-optional excludeMiddleware: PipeType<IncomingEventType, OutgoingResponseType>[];
+optional excludeMiddleware?: PipeType<IncomingEventType, OutgoingResponseType>[];
 ```
 
 #### Inherited from
@@ -90,19 +90,19 @@ optional excludeMiddleware: PipeType<IncomingEventType, OutgoingResponseType>[];
 ### fallback?
 
 ```ts
-optional fallback: boolean;
+optional fallback?: boolean;
 ```
 
 #### Inherited from
 
-[`RouteDefinition`](RouteDefinition.md).[`fallback`](RouteDefinition.md#fallback)
+[`RouteOptions`](../../Route/interfaces/RouteOptions.md).[`fallback`](../../Route/interfaces/RouteOptions.md#fallback)
 
 ***
 
 ### handler?
 
 ```ts
-optional handler: MixedEventHandler<IncomingEventType, OutgoingResponseType>;
+optional handler?: MixedEventHandler<IncomingEventType, OutgoingResponseType>;
 ```
 
 #### Inherited from
@@ -114,19 +114,19 @@ optional handler: MixedEventHandler<IncomingEventType, OutgoingResponseType>;
 ### isInternalHeader?
 
 ```ts
-optional isInternalHeader: boolean;
+optional isInternalHeader?: boolean;
 ```
 
 #### Inherited from
 
-[`RouteDefinition`](RouteDefinition.md).[`isInternalHeader`](RouteDefinition.md#isinternalheader)
+[`RouteOptions`](../../Route/interfaces/RouteOptions.md).[`isInternalHeader`](../../Route/interfaces/RouteOptions.md#isinternalheader)
 
 ***
 
 ### method?
 
 ```ts
-optional method: HttpMethod;
+optional method?: HttpMethod;
 ```
 
 #### Inherited from
@@ -138,7 +138,7 @@ optional method: HttpMethod;
 ### methods?
 
 ```ts
-optional methods: undefined;
+optional methods?: undefined;
 ```
 
 #### Overrides
@@ -150,7 +150,7 @@ optional methods: undefined;
 ### middleware?
 
 ```ts
-optional middleware: MixedPipe<IncomingEventType, OutgoingResponseType>[];
+optional middleware?: MixedPipe<IncomingEventType, OutgoingResponseType>[];
 ```
 
 #### Inherited from
@@ -162,7 +162,7 @@ optional middleware: MixedPipe<IncomingEventType, OutgoingResponseType>[];
 ### name?
 
 ```ts
-optional name: string;
+optional name?: string;
 ```
 
 #### Inherited from
@@ -186,7 +186,7 @@ path: string | string[];
 ### protocol?
 
 ```ts
-optional protocol: string | string[];
+optional protocol?: string | string[];
 ```
 
 #### Inherited from
@@ -195,10 +195,22 @@ optional protocol: string | string[];
 
 ***
 
+### protocolPolicy?
+
+```ts
+optional protocolPolicy?: ProtocolPolicy;
+```
+
+#### Inherited from
+
+[`RouteOptions`](../../Route/interfaces/RouteOptions.md).[`protocolPolicy`](../../Route/interfaces/RouteOptions.md#protocolpolicy)
+
+***
+
 ### redirect?
 
 ```ts
-optional redirect: 
+optional redirect?: 
   | string
   | Record<string, unknown>
 | RouteDefinitionRedirect<IncomingEventType, unknown>;
@@ -213,7 +225,7 @@ optional redirect:
 ### rules?
 
 ```ts
-optional rules: Record<string, string | RegExp>;
+optional rules?: Record<string, string | RegExp>;
 ```
 
 #### Inherited from
@@ -225,7 +237,7 @@ optional rules: Record<string, string | RegExp>;
 ### strict?
 
 ```ts
-optional strict: boolean;
+optional strict?: boolean;
 ```
 
 #### Inherited from

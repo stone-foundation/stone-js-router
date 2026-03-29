@@ -1,4 +1,4 @@
-# Type Alias: RouteDefinitionRedirect()\<IncomingEventType, OutgoingResponseType\>
+# Type Alias: RouteDefinitionRedirect\<IncomingEventType, OutgoingResponseType\>
 
 ```ts
 type RouteDefinitionRedirect<IncomingEventType, OutgoingResponseType> = (route, event) => Promiseable<string | Record<string, unknown>>;

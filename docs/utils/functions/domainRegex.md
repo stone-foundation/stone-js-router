@@ -1,7 +1,7 @@
 # Function: domainRegex()
 
 ```ts
-function domainRegex(options, flags): undefined | RegExp;
+function domainRegex(options, flags?): RegExp | undefined;
 ```
 
 Builds a regular expression for matching domains based on route options.
@@ -14,7 +14,7 @@ Builds a regular expression for matching domains based on route options.
 
 The route options to build the regex from.
 
-### flags
+### flags?
 
 `string` = `'i'`
 
@@ -22,7 +22,7 @@ Regular expression flags, defaults to 'i' (case insensitive).
 
 ## Returns
 
-`undefined` \| `RegExp`
+`RegExp` \| `undefined`
 
 A regular expression for matching domains or undefined if no domain is specified.
 

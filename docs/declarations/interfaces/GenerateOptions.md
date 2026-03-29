@@ -11,7 +11,7 @@ Options for generating routes.
 ### hash?
 
 ```ts
-optional hash: string;
+optional hash?: string;
 ```
 
 #### Inherited from
@@ -35,7 +35,7 @@ name: string;
 ### params?
 
 ```ts
-optional params: Record<string, string>;
+optional params?: Record<string, string>;
 ```
 
 #### Inherited from
@@ -47,7 +47,7 @@ optional params: Record<string, string>;
 ### protocol?
 
 ```ts
-optional protocol: string;
+optional protocol?: string;
 ```
 
 ***
@@ -55,7 +55,7 @@ optional protocol: string;
 ### query?
 
 ```ts
-optional query: Record<string, string>;
+optional query?: Record<string, string>;
 ```
 
 #### Inherited from
@@ -67,5 +67,5 @@ optional query: Record<string, string>;
 ### withDomain?
 
 ```ts
-optional withDomain: boolean;
+optional withDomain?: boolean;
 ```

@@ -11,7 +11,7 @@ Custom error for Integration layer operations.
 ### Constructor
 
 ```ts
-new RouterError(message, options): RouterError;
+new RouterError(message, options?): RouterError;
 ```
 
 #### Parameters
@@ -20,7 +20,7 @@ new RouterError(message, options): RouterError;
 
 `string`
 
-##### options
+##### options?
 
 `ErrorOptions` = `{}`
 

@@ -6,7 +6,7 @@ type IBoundModel = Function & object;
 
 Represents a model bound to a route.
 
-## Type declaration
+## Type Declaration
 
 ### resolveRouteBinding
 

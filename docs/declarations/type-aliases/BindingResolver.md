@@ -1,4 +1,4 @@
-# Type Alias: BindingResolver()
+# Type Alias: BindingResolver
 
 ```ts
 type BindingResolver = (key, value, resolver?) => Promiseable<unknown>;

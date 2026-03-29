@@ -1,4 +1,4 @@
-# Type Alias: EventHandlerClass()\<IncomingEventType, OutgoingResponseType\>
+# Type Alias: EventHandlerClass\<IncomingEventType, OutgoingResponseType\>
 
 ```ts
 type EventHandlerClass<IncomingEventType, OutgoingResponseType> = (...args) => 

@@ -10,9 +10,9 @@ A method decorator for defining HTTP OPTIONS routes.
 
 ### path
 
-The route path for the OPTIONS endpoint.
+`string` \| `string`[]
 
-`string` | `string`[]
+The route path for the OPTIONS endpoint.
 
 ### options?
 

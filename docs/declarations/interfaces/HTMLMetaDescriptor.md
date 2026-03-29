@@ -15,7 +15,7 @@ content: string;
 ### name?
 
 ```ts
-optional name: string;
+optional name?: string;
 ```
 
 ***
@@ -23,5 +23,5 @@ optional name: string;
 ### property?
 
 ```ts
-optional property: string;
+optional property?: string;
 ```

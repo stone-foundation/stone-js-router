@@ -15,7 +15,7 @@ content: string;
 ### media?
 
 ```ts
-optional media: string;
+optional media?: string;
 ```
 
 ***
@@ -23,5 +23,5 @@ optional media: string;
 ### type?
 
 ```ts
-optional type: string;
+optional type?: string;
 ```

@@ -50,26 +50,6 @@ The EventHandler module.
 
 The MetaEventHandler.
 
-### Param
-
-The EventHandler module.
-
-### Param
-
-Optional handler definition options.
-
-### Param
-
-Indicates that the handler is a factory function.
-
-### Param
-
-Indicates that the handler is a class.
-
-### Param
-
-The action name for the event handler.
-
 ## Call Signature
 
 ```ts
@@ -115,26 +95,6 @@ Indicates that the handler is a factory function.
 [`MetaEventHandler`](../../../declarations/interfaces/MetaEventHandler.md)\<`U`\>
 
 The MetaEventHandler.
-
-### Param
-
-The EventHandler module.
-
-### Param
-
-Optional handler definition options.
-
-### Param
-
-Indicates that the handler is a factory function.
-
-### Param
-
-Indicates that the handler is a class.
-
-### Param
-
-The action name for the event handler.
 
 ## Call Signature
 
@@ -183,23 +143,3 @@ Indicates that the handler is a class.
 [`MetaEventHandler`](../../../declarations/interfaces/MetaEventHandler.md)\<`U`\>
 
 The MetaEventHandler.
-
-### Param
-
-The EventHandler module.
-
-### Param
-
-Optional handler definition options.
-
-### Param
-
-Indicates that the handler is a factory function.
-
-### Param
-
-Indicates that the handler is a class.
-
-### Param
-
-The action name for the event handler.

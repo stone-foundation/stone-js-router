@@ -36,10 +36,6 @@ An array of route definitions, each containing path, module, and options.
 
 The RouterBlueprint.
 
-### Param
-
-An array of route definitions, each containing path, module, and options.
-
 ## Call Signature
 
 ```ts
@@ -69,7 +65,3 @@ An array of route definitions, each containing path, module, and options.
 [`RouterBlueprint`](../../../options/RouterBlueprint/interfaces/RouterBlueprint.md)\<[`StoneIncomingEvent`](../../../declarations/interfaces/StoneIncomingEvent.md)\>
 
 The RouterBlueprint.
-
-### Param
-
-An array of route definitions, each containing path, module, and options.

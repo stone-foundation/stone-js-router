@@ -1,4 +1,4 @@
-# Type Alias: DispacheClass()\<IncomingEventType, OutgoingResponseType\>
+# Type Alias: DispacheClass\<IncomingEventType, OutgoingResponseType\>
 
 ```ts
 type DispacheClass<IncomingEventType, OutgoingResponseType> = (...args) => IDispacher<IncomingEventType, OutgoingResponseType>;

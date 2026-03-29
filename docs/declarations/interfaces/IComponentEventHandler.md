@@ -21,15 +21,15 @@ The type representing the outgoing response.
 ### handle?
 
 ```ts
-optional handle: FunctionalEventHandler<IncomingEventType, OutgoingResponseType>;
+optional handle?: FunctionalEventHandler<IncomingEventType, OutgoingResponseType>;
 ```
 
 ***
 
-### head()?
+### head?
 
 ```ts
-optional head: (options) => Promiseable<HeadContext>;
+optional head?: (options) => Promiseable<HeadContext>;
 ```
 
 #### Parameters
@@ -44,7 +44,7 @@ optional head: (options) => Promiseable<HeadContext>;
 
 ***
 
-### render()
+### render
 
 ```ts
 render: (options) => unknown;

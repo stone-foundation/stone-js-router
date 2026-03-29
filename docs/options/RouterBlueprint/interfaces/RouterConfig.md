@@ -21,7 +21,7 @@ Defines the configuration options for the router.
 ### bindings?
 
 ```ts
-optional bindings: Record<string, 
+optional bindings?: Record<string, 
   | BindingResolver
 | IBoundModel>;
 ```
@@ -37,7 +37,7 @@ Custom function bindings for specific route behaviors.
 ### defaults?
 
 ```ts
-optional defaults: Record<string, unknown>;
+optional defaults?: Record<string, unknown>;
 ```
 
 Default parameter values for routes.
@@ -65,7 +65,7 @@ Array of route definitions to be included in the router.
 ### dependencyResolver?
 
 ```ts
-optional dependencyResolver: DependencyResolver;
+optional dependencyResolver?: DependencyResolver;
 ```
 
 Resolver used to resolve dependencies.
@@ -93,7 +93,7 @@ Dispatchers used for handling callable and controller-based routes.
 ### eventEmitter?
 
 ```ts
-optional eventEmitter: IEventEmitter;
+optional eventEmitter?: IEventEmitter;
 ```
 
 Custom event emitter for handling application events.
@@ -135,7 +135,7 @@ Maximum depth allowed in route definitions.
 ### middleware?
 
 ```ts
-optional middleware: MixedPipe<IncomingEventType, OutgoingResponseType>[];
+optional middleware?: MixedPipe<IncomingEventType, OutgoingResponseType>[];
 ```
 
 List of middleware applied during route resolution.
@@ -149,7 +149,7 @@ List of middleware applied during route resolution.
 ### prefix?
 
 ```ts
-optional prefix: string;
+optional prefix?: string;
 ```
 
 Base path prefix applied to all routes.
@@ -160,10 +160,24 @@ Base path prefix applied to all routes.
 
 ***
 
+### protocolPolicy?
+
+```ts
+optional protocolPolicy?: ProtocolPolicy;
+```
+
+Protocol Policy for all routes.
+
+#### Inherited from
+
+[`RouterOptions`](../../../declarations/interfaces/RouterOptions.md).[`protocolPolicy`](../../../declarations/interfaces/RouterOptions.md#protocolpolicy)
+
+***
+
 ### rules?
 
 ```ts
-optional rules: Record<string, RegExp>;
+optional rules?: Record<string, RegExp>;
 ```
 
 Custom rules for route matching, defined as regular expressions.
@@ -177,7 +191,7 @@ Custom rules for route matching, defined as regular expressions.
 ### skipMiddleware?
 
 ```ts
-optional skipMiddleware: boolean;
+optional skipMiddleware?: boolean;
 ```
 
 Skips middleware execution for specific routes.
@@ -191,7 +205,7 @@ Skips middleware execution for specific routes.
 ### strict?
 
 ```ts
-optional strict: boolean;
+optional strict?: boolean;
 ```
 
 Enables strict path matching.

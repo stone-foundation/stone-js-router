@@ -11,7 +11,7 @@ Custom error for Integration layer operations.
 ### Constructor
 
 ```ts
-new MethodNotAllowedError(message, options): MethodNotAllowedError;
+new MethodNotAllowedError(message, options?): MethodNotAllowedError;
 ```
 
 #### Parameters
@@ -20,7 +20,7 @@ new MethodNotAllowedError(message, options): MethodNotAllowedError;
 
 `string`
 
-##### options
+##### options?
 
 `ErrorOptions` = `{}`
 

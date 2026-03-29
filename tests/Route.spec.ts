@@ -31,6 +31,7 @@ const createRouteOptions = (overrides: Partial<RouteOptions> = {}): RouteOptions
   method: 'GET',
   handler: vi.fn(),
   customOptions: 'test',
+  protocolPolicy: 'force-http',
   excludeMiddleware: ['middleware1', 'middleware2'],
   ...overrides
 })
@@ -103,7 +104,7 @@ describe('Route Options and Booleans', () => {
     expect(route.isSecure()).toBe(false)
     expect(route.isFallback()).toBe(false)
 
-    const secureRoute = Route.create(createRouteOptions({ protocol: 'https', fallback: true, strict: true }))
+    const secureRoute = Route.create(createRouteOptions({ protocolPolicy: 'force-https', fallback: true, strict: true }))
     expect(secureRoute.isHttpsOnly()).toBe(true)
     expect(secureRoute.isHttpOnly()).toBe(false)
     expect(secureRoute.isStrict()).toBe(true)

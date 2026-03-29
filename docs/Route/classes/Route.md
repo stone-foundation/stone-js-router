@@ -230,9 +230,10 @@ Adds a middleware to the route.
 
 ##### middleware
 
-The middleware to add.
+  \| `MixedPipe`\<`IncomingEventType`, `OutgoingResponseType`\>
+  \| `MixedPipe`\<`IncomingEventType`, `OutgoingResponseType`\>[]
 
-`MixedPipe`\<`IncomingEventType`, `OutgoingResponseType`\> | `MixedPipe`\<`IncomingEventType`, `OutgoingResponseType`\>[]
+The middleware to add.
 
 #### Returns
 
@@ -330,7 +331,7 @@ An optional fallback value if the option is not found.
 #### Call Signature
 
 ```ts
-getOption<TReturn>(key): undefined | TReturn;
+getOption<TReturn>(key): TReturn | undefined;
 ```
 
 Retrieves a specified option from the route configuration.
@@ -351,17 +352,9 @@ The key of the option to retrieve.
 
 ##### Returns
 
-`undefined` \| `TReturn`
+`TReturn` \| `undefined`
 
 The value of the option or the fallback value if not found.
-
-##### Param
-
-The key of the option to retrieve.
-
-##### Param
-
-An optional fallback value if the option is not found.
 
 #### Call Signature
 
@@ -396,14 +389,6 @@ A fallback value if the option is not found.
 `TReturn`
 
 The value of the option or the fallback value if not found.
-
-##### Param
-
-The key of the option to retrieve.
-
-##### Param
-
-An optional fallback value if the option is not found.
 
 ***
 
@@ -468,7 +453,7 @@ An optional fallback value if the parameter is not found.
 #### Call Signature
 
 ```ts
-getParam<TReturn>(name): undefined | TReturn;
+getParam<TReturn>(name): TReturn | undefined;
 ```
 
 Retrieves the value of a specific parameter.
@@ -489,17 +474,9 @@ The name of the parameter to retrieve.
 
 ##### Returns
 
-`undefined` \| `TReturn`
+`TReturn` \| `undefined`
 
 The value of the parameter or the fallback value if not found.
-
-##### Param
-
-The name of the parameter to retrieve.
-
-##### Param
-
-An optional fallback value if the parameter is not found.
 
 #### Call Signature
 
@@ -534,14 +511,6 @@ A fallback value if the parameter is not found.
 `TReturn`
 
 The value of the parameter or the fallback value if not found.
-
-##### Param
-
-The name of the parameter to retrieve.
-
-##### Param
-
-An optional fallback value if the parameter is not found.
 
 ***
 

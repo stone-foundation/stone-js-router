@@ -21,7 +21,7 @@ href: string;
 ### media?
 
 ```ts
-optional media: string;
+optional media?: string;
 ```
 
 ***
@@ -37,5 +37,5 @@ rel: string;
 ### type?
 
 ```ts
-optional type: string;
+optional type?: string;
 ```

@@ -11,7 +11,7 @@ Options for navigation.
 ### hash?
 
 ```ts
-optional hash: string;
+optional hash?: string;
 ```
 
 ***
@@ -27,7 +27,7 @@ name: string;
 ### params?
 
 ```ts
-optional params: Record<string, string>;
+optional params?: Record<string, string>;
 ```
 
 ***
@@ -35,5 +35,5 @@ optional params: Record<string, string>;
 ### query?
 
 ```ts
-optional query: Record<string, string>;
+optional query?: Record<string, string>;
 ```

@@ -116,8 +116,8 @@ An array of route definitions.
 
 ```ts
 getByName(name): 
-  | undefined
-| Route<IncomingEventType, OutgoingResponseType>;
+  | Route<IncomingEventType, OutgoingResponseType>
+  | undefined;
 ```
 
 Retrieves a route by name.
@@ -132,8 +132,8 @@ The name of the route.
 
 #### Returns
 
-  \| `undefined`
   \| [`Route`](../../Route/classes/Route.md)\<`IncomingEventType`, `OutgoingResponseType`\>
+  \| `undefined`
 
 The corresponding `Route`, or `undefined` if not found.
 
@@ -206,7 +206,7 @@ The name of the route.
 ### match()
 
 ```ts
-match(event, includingMethod): Route<IncomingEventType, OutgoingResponseType>;
+match(event, includingMethod?): Route<IncomingEventType, OutgoingResponseType>;
 ```
 
 Matches a `Route` based on an incoming event.
@@ -219,7 +219,7 @@ Matches a `Route` based on an incoming event.
 
 The incoming HTTP event.
 
-##### includingMethod
+##### includingMethod?
 
 `boolean` = `true`
 

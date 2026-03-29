@@ -6,7 +6,7 @@ type FunctionalRouteGroupDefinition<IncomingEventType, OutgoingResponseType> = O
 
 Defines a functional route group with a required path.
 
-## Type declaration
+## Type Declaration
 
 ### path
 

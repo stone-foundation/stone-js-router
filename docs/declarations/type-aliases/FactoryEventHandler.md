@@ -1,4 +1,4 @@
-# Type Alias: FactoryEventHandler()\<IncomingEventType, OutgoingResponseType\>
+# Type Alias: FactoryEventHandler\<IncomingEventType, OutgoingResponseType\>
 
 ```ts
 type FactoryEventHandler<IncomingEventType, OutgoingResponseType> = (resolver?) => FunctionalEventHandler<IncomingEventType, OutgoingResponseType>;
@@ -24,9 +24,11 @@ The type representing the outgoing response.
 
 ### resolver?
 
-The route resolver.
+  \| [`DependencyResolver`](../interfaces/DependencyResolver.md)
+  \| `IContainer`
+  \| `any`
 
-[`DependencyResolver`](../interfaces/DependencyResolver.md) | `IContainer` | `any`
+The route resolver.
 
 ## Returns
 
