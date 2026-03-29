@@ -5,6 +5,13 @@ All notable changes to the "Stone.js Router" extension will be documented in thi
 ## Unreleased
 
 
+## [0.2.0](https://github.com/stone-foundation/stone-js-router/compare/v0.1.0...v0.2.0) (2026-03-29)
+
+
+### Features
+
+* add a protocol strategy to support global protocol forcing ([#15](https://github.com/stone-foundation/stone-js-router/issues/15)) ([4014499](https://github.com/stone-foundation/stone-js-router/commit/4014499c1383e4247d912d8538e077403ca458b1))
+
 ## [0.1.0](https://github.com/stone-foundation/stone-js-router/compare/v0.0.3...v0.1.0) (2025-06-12)
 
 
