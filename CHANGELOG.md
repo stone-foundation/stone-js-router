@@ -5,6 +5,13 @@ All notable changes to the "Stone.js Router" extension will be documented in thi
 ## Unreleased
 
 
+## [0.2.1](https://github.com/stone-foundation/stone-js-router/compare/v0.2.0...v0.2.1) (2026-06-12)
+
+
+### Bug Fixes
+
+* removed Lookbehind regular expression syntax to ensure compatibility with older systems ([#18](https://github.com/stone-foundation/stone-js-router/issues/18)) ([d6dd196](https://github.com/stone-foundation/stone-js-router/commit/d6dd1960d269dfbfe56c225b6e77656247f5433c))
+
 ## [0.2.0](https://github.com/stone-foundation/stone-js-router/compare/v0.1.0...v0.2.0) (2026-03-29)
 
 
