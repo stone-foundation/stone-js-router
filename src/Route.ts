@@ -456,7 +456,7 @@ export class Route<IncomingEventType extends IIncomingEvent = IIncomingEvent, Ou
 
       // Append path segments
       return [prevPath, constraint.prefix, constraint.param !== undefined ? paramValue : constraint.match, '/'].filter(Boolean).join('')
-    }, '/').replace(/(?<!:)(\/{2,})/g, '/') // Replace redundant slashes
+    }, '/').replace(/(\/{2,})/g, '/').replace(':/', '://') // Replace redundant slashes
 
     // Combine path, query, and hash
     return [path, queryParams?.length > 0 && `?${queryParams}`, formatHash(hash)].filter(Boolean).join('')
