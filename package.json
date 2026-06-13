@@ -49,7 +49,7 @@
     "prepare": "husky"
   },
   "peerDependencies": {
-    "@stone-js/core": "^0.1.4"
+    "@stone-js/core": "^0.2.1"
   },
   "dependencies": {
     "lodash-es": "^4.17.21"
