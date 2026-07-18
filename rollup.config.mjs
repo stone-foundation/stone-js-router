@@ -27,7 +27,8 @@ export default [
     ]
   },
   {
-    input: 'dist/**/*.d.ts',
+    // Exclude the previous build's bundled output (stale-dts guard).
+    input: ['dist/**/*.d.ts', '!dist/index.d.ts'],
     output: [{ format: 'es' , file: 'dist/index.d.ts' }],
     plugins: [
       multi(),

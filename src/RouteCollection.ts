@@ -1,6 +1,7 @@
 import { Route } from './Route'
 import { HTTP_METHODS } from './constants'
 import { IIncomingEvent } from './declarations'
+import { RouterError } from './errors/RouterError'
 import { RouteNotFoundError } from './errors/RouteNotFoundError'
 import { MethodNotAllowedError } from './errors/MethodNotAllowedError'
 
@@ -172,7 +173,21 @@ export class RouteCollection<
   }
 
   private addToCollections (route: Route<IncomingEventType, OutgoingResponseType>): void {
-    this.routes.set(`${String(route.getOption('method'))}.${String(route.getOption('path'))}`, route)
+    const key = `${String(route.getOption('method'))}.${String(route.getOption('path'))}`
+    const existing = this.routes.get(key)
+
+    // Fail fast on a genuine duplicate (same method + path) instead of silently
+    // overwriting it, which was near-impossible to debug. The auto-derived HEAD
+    // route (`isInternalHeader`) may always be superseded by an explicit one.
+    if (
+      existing !== undefined &&
+      existing.getOption<boolean>('isInternalHeader') !== true &&
+      route.getOption<boolean>('isInternalHeader') !== true
+    ) {
+      throw new RouterError(`Duplicate route detected for "${key}". Two routes cannot share the same method and path.`)
+    }
+
+    this.routes.set(key, route)
   }
 
   private addToMethodList (route: Route<IncomingEventType, OutgoingResponseType>): void {
@@ -196,7 +211,15 @@ export class RouteCollection<
     includingMethod: boolean
   ): Route<IncomingEventType, OutgoingResponseType> | undefined {
     return routes
-      .sort((a, b) => Number(a.getOption<boolean>('fallback')) - Number(b.getOption<boolean>('fallback')))
+      .slice()
+      .sort((a, b) => {
+        // Fallback routes are always evaluated last.
+        const fallbackDelta = (a.isFallback() ? 1 : 0) - (b.isFallback() ? 1 : 0)
+        if (fallbackDelta !== 0) { return fallbackDelta }
+        // Otherwise the most specific route wins (static > required > optional > catch-all),
+        // deterministically and independently of declaration order.
+        return b.getScore() - a.getScore()
+      })
       .find(route => route.matches(event, includingMethod))
   }
 
@@ -227,6 +250,8 @@ export class RouteCollection<
   }
 
   private getRouteForMethods (event: IncomingEventType, methods: string[]): Route<IncomingEventType, OutgoingResponseType> {
+    const allow = methods.join(', ')
+
     if (event.isMethod?.('OPTIONS')) {
       return Route.create<IncomingEventType, OutgoingResponseType>({
         method: 'OPTIONS',
@@ -234,13 +259,17 @@ export class RouteCollection<
         handler: (_event: IncomingEventType) => ({
           statusText: '',
           statusCode: 200,
-          content: { Allow: methods.join(',') }
+          headers: { Allow: allow },
+          content: ''
         } as unknown as OutgoingResponseType)
       })
     }
 
+    // Carry the allowed methods on the error so the error handler can emit the
+    // mandatory `Allow` header (RFC 7231 §6.5.5), not only a text message.
     throw new MethodNotAllowedError(
-      `Method ${String(event.method)} is not supported for ${String(event.decodedPathname)}. Supported methods: ${String(methods.join(', '))}.`
+      `Method ${String(event.method)} is not supported for ${String(event.decodedPathname)}. Supported methods: ${allow}.`,
+      { metadata: { allowedMethods: methods } }
     )
   }
 }

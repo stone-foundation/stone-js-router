@@ -69,6 +69,7 @@ export const routerBlueprint: RouterBlueprint = {
     router: {
       rules: {},
       maxDepth: 5,
+      maxUriLength: 2048,
       defaults: {},
       bindings: {},
       strict: false,

@@ -15,3 +15,7 @@ export const NODE_CONSOLE_PLATFORM = 'node_console'
 
 // Navigation event
 export const NAVIGATION_EVENT = '@stonejs/router.navigate'
+
+// Default maximum request URI length (characters) accepted before matching.
+// Defence-in-depth against pathological inputs; overridable via `stone.router.maxUriLength`.
+export const MAX_URI_LENGTH = 2048

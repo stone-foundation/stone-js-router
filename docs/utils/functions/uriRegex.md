@@ -6,6 +6,12 @@ function uriRegex(options, flags?): RegExp;
 
 Builds a regular expression for matching a full URI based on route options.
 
+The URI regex covers the (optional) domain followed by the path and is the one
+used to **extract** parameter values (see `Route.bind`). Every parameter is
+emitted as a uniquely named capture group (`p0`, `p1`, ...) in constraint order,
+so parameter binding is done by name and is immune to extra capture groups that
+a user-supplied rule might introduce.
+
 ## Parameters
 
 ### options

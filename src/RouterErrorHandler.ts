@@ -1,5 +1,5 @@
 import { RouterError } from './errors/RouterError'
-import { ILogger, IErrorHandler, Promiseable } from '@stone-js/core'
+import { ILogger, IErrorHandler, Promiseable, RuntimeError } from '@stone-js/core'
 import { IOutgoingResponse, StoneIncomingEvent } from './declarations'
 
 /**
@@ -46,9 +46,15 @@ export class RouterErrorHandler<
 
     this.logger.error(error.message, { error })
 
+    // A 405 must advertise the allowed methods via the `Allow` header (RFC 7231 §6.5.5).
+    const allowedMethods = (error as RuntimeError).metadata as { allowedMethods?: string[] } | undefined
+    const allowHeader = Array.isArray(allowedMethods?.allowedMethods)
+      ? { Allow: allowedMethods?.allowedMethods.join(', ') }
+      : undefined
+
     const response = ({
       RouteNotFoundError: { statusCode: 404, content: message('Not Found') },
-      MethodNotAllowedError: { statusCode: 405, content: message('Method Not Allowed') }
+      MethodNotAllowedError: { statusCode: 405, content: message('Method Not Allowed'), headers: allowHeader }
     })[error.name] ?? { statusCode: 500, content: message('Internal Server Error') }
 
     return response as OutgoingResponseType

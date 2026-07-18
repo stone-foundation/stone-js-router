@@ -1,5 +1,6 @@
 import { RouterError } from '../src/errors/RouterError'
 import { RouterErrorHandler } from '../src/RouterErrorHandler'
+import { MethodNotAllowedError } from '../src/errors/MethodNotAllowedError'
 
 describe('RouterErrorHandler', () => {
   const createLogger = (): any => ({
@@ -40,6 +41,19 @@ describe('RouterErrorHandler', () => {
 
     expect(result).toEqual({ statusCode: 405, content: { error: 'Method Not Allowed' } })
     expect(logger.error).toHaveBeenCalledWith('Wrong method', { error })
+  })
+
+  it('should emit an Allow header on 405 when the error carries allowed methods', () => {
+    const logger = createLogger()
+    const event = createEvent('html')
+    const handler = new RouterErrorHandler({ logger })
+
+    const error = new MethodNotAllowedError('Wrong method', { metadata: { allowedMethods: ['GET', 'POST'] } })
+
+    const result: any = handler.handle(error, event)
+
+    expect(result.statusCode).toBe(405)
+    expect(result.headers).toEqual({ Allow: 'GET, POST' })
   })
 
   it('should fallback to 500 for unknown error types', () => {

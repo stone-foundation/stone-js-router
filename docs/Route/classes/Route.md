@@ -316,15 +316,36 @@ A record of defined parameters.
 
 ***
 
+### getDomainRegex()
+
+```ts
+getDomainRegex(): RegExp | undefined;
+```
+
+Returns the compiled regex matching the domain, or `undefined` when the route
+has no domain constraint.
+
+#### Returns
+
+`RegExp` \| `undefined`
+
+The precompiled domain regex or `undefined`.
+
+***
+
 ### getOption()
 
 Retrieves a specified option from the route configuration.
 
 #### Param
 
+**key**
+
 The key of the option to retrieve.
 
 #### Param
+
+**fallback**
 
 An optional fallback value if the option is not found.
 
@@ -444,9 +465,13 @@ Retrieves the value of a specific parameter.
 
 #### Param
 
+**name**
+
 The name of the parameter to retrieve.
 
 #### Param
+
+**fallback**
 
 An optional fallback value if the parameter is not found.
 
@@ -527,6 +552,61 @@ Retrieves the names of all parameters.
 `string`[]
 
 An array of parameter names.
+
+***
+
+### getPathRegex()
+
+```ts
+getPathRegex(): RegExp;
+```
+
+Returns the compiled regex matching the path only.
+
+#### Returns
+
+`RegExp`
+
+The precompiled path regex.
+
+***
+
+### getScore()
+
+```ts
+getScore(): number;
+```
+
+Computes a deterministic specificity score for the route.
+
+Higher is more specific. Static segments outrank required parameters, which
+outrank optional parameters, which outrank catch-all (`*`/`+`) wildcards. This
+lets the collection order routes by specificity independently of their
+declaration order (e.g. `/users/new` wins over `/users/:id`).
+
+#### Returns
+
+`number`
+
+The specificity score.
+
+***
+
+### getUriRegex()
+
+```ts
+getUriRegex(): RegExp;
+```
+
+Returns the compiled regex matching the full URI (domain + path).
+
+Used to extract parameter values via named capture groups.
+
+#### Returns
+
+`RegExp`
+
+The precompiled URI regex.
 
 ***
 

@@ -86,7 +86,8 @@ describe('RouteCollection', () => {
     const response: any = await handler?.(event)
 
     expect(response.statusCode).toBe(200)
-    expect(response.content.Allow).toBe('POST')
+    // Allow is now carried in the response headers (RFC 7231), not in the body.
+    expect(response.headers.Allow).toBe('POST')
   })
 
   it('should fallback to OPTIONS route if supported methods exist 2', async () => {

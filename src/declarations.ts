@@ -510,6 +510,9 @@ export interface RouterOptions<
   /** Maximum depth allowed in route definitions. */
   maxDepth: number
 
+  /** Maximum request URI length (characters) accepted before matching. Defaults to 2048. */
+  maxUriLength?: number
+
   /** Skips middleware execution for specific routes. */
   skipMiddleware?: boolean
 
@@ -547,8 +550,8 @@ export interface RouterOptions<
 export interface NavigateOptions {
   name: string
   hash?: string
-  query?: Record<string, string>
-  params?: Record<string, string>
+  query?: Record<string, string | number | boolean>
+  params?: Record<string, string | number | boolean>
 }
 
 /**

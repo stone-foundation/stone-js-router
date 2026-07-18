@@ -132,6 +132,20 @@ Maximum depth allowed in route definitions.
 
 ***
 
+### maxUriLength?
+
+```ts
+optional maxUriLength?: number;
+```
+
+Maximum request URI length (characters) accepted before matching. Defaults to 2048.
+
+#### Inherited from
+
+[`RouterOptions`](../../../declarations/interfaces/RouterOptions.md).[`maxUriLength`](../../../declarations/interfaces/RouterOptions.md#maxurilength)
+
+***
+
 ### middleware?
 
 ```ts

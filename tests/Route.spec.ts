@@ -13,7 +13,8 @@ vi.mock('../src/utils', async (importOriginal) => {
   const actual: any = await importOriginal()
   return {
     ...actual,
-    uriRegex: vi.fn(() => /\/user-(\d+)\/?(\w+)?/),
+    // Named groups (p0, p1, ...) mirror the real compiler; binding reads by name now.
+    uriRegex: vi.fn(() => /\/user-(?<p0>\d+)\/?(?<p1>\w+)?/),
     uriConstraints: vi.fn(() => [
       { param: 'id', prefix: 'user-' },
       { param: 'name', optional: true }
@@ -360,7 +361,8 @@ describe('bind()', () => {
 
     await route.bind(mockEvent as any)
 
-    expect(route.params).toEqual({ id: 123, name: 'john' })
+    // Params stay raw strings: no destructive numeric coercion ('123' is not turned into 123).
+    expect(route.params).toEqual({ id: '123', name: 'john' })
     expect(route.query).toEqual({ q: 'search' })
     expect(route.url.href).toContain('/user-123/john?q=search')
   })
@@ -384,11 +386,11 @@ describe('bind()', () => {
     }
 
     await route.bind(mockEvent as any)
-    expect(route.params.id).toBe(42)
+    expect(route.params.id).toBe('42')
     expect(route.params.name).toBe(34)
     expect(route.params.profile).toBe(34)
     expect(route.params.user).toBe('bound-user')
-    expect(User.resolveRouteBinding).toHaveBeenCalledWith('id', 42, undefined)
+    expect(User.resolveRouteBinding).toHaveBeenCalledWith('id', '42', undefined)
     expect(routeOptions.bindings.name).toHaveBeenCalledWith('profile', undefined, undefined)
   })
 
@@ -412,7 +414,7 @@ describe('bind()', () => {
     await route.bind(mockEvent as any)
 
     expect(mockResolver.resolve).toHaveBeenCalledWith('User')
-    expect(method).toHaveBeenCalledWith('id', 1)
+    expect(method).toHaveBeenCalledWith('id', '1')
     expect(route.params.id).toBe('resolved-value')
   })
 

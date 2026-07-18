@@ -1,6 +1,5 @@
 import { Route } from './Route'
 import { IIncomingEvent } from './declarations'
-import { domainRegex, pathRegex } from './utils'
 
 /**
  * Options for route matchers.
@@ -35,7 +34,8 @@ export function hostMatcher<
   IncomingEventType extends IIncomingEvent = IIncomingEvent,
   OutgoingResponseType = unknown
 > ({ route, event }: MatcherOptions<IncomingEventType, OutgoingResponseType>): boolean {
-  return domainRegex(route.options) === undefined || domainRegex(route.options)?.test(event.host) === true
+  const regex = route.getDomainRegex()
+  return regex === undefined || regex.test(event.host)
 }
 
 /**
@@ -108,5 +108,5 @@ export function uriMatcher<
   IncomingEventType extends IIncomingEvent = IIncomingEvent,
   OutgoingResponseType = unknown
 > ({ route, event }: MatcherOptions<IncomingEventType, OutgoingResponseType>): boolean {
-  return pathRegex(route.options).test(event.decodedPathname ?? event.pathname)
+  return route.getPathRegex().test(event.decodedPathname ?? event.pathname)
 }

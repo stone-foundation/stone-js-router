@@ -4,21 +4,31 @@ Utility function to define an event handler.
 
 ## Param
 
+**module**
+
 The EventHandler module.
 
 ## Param
+
+**options**
 
 Optional handler definition options.
 
 ## Param
 
+**options.isFactory**
+
 Indicates that the handler is a factory function.
 
 ## Param
 
+**options.isClass**
+
 Indicates that the handler is a class.
 
 ## Param
+
+**options.action**
 
 The action name for the event handler.
 

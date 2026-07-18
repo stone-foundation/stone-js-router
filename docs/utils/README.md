@@ -9,5 +9,6 @@
 - [getSegmentsConstraints](functions/getSegmentsConstraints.md)
 - [isMetaComponentModule](functions/isMetaComponentModule.md)
 - [pathRegex](functions/pathRegex.md)
+- [toNonCapturingSource](functions/toNonCapturingSource.md)
 - [uriConstraints](functions/uriConstraints.md)
 - [uriRegex](functions/uriRegex.md)

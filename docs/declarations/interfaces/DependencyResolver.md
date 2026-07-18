@@ -5,6 +5,8 @@ Used to resolve dependencies for a given module.
 
 ## Param
 
+**module**
+
 The module to resolve.
 
 ## Properties

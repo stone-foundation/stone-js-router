@@ -59,7 +59,7 @@ optional defaults?: Record<string, unknown>;
 
 #### Inherited from
 
-[`RouteDefinition`](RouteDefinition.md).[`defaults`](RouteDefinition.md#defaults)
+[`RouteOptions`](../../Route/interfaces/RouteOptions.md).[`defaults`](../../Route/interfaces/RouteOptions.md#defaults)
 
 ***
 
@@ -230,7 +230,7 @@ optional rules?: Record<string, string | RegExp>;
 
 #### Inherited from
 
-[`RouteDefinition`](RouteDefinition.md).[`rules`](RouteDefinition.md#rules)
+[`RouteOptions`](../../Route/interfaces/RouteOptions.md).[`rules`](../../Route/interfaces/RouteOptions.md#rules)
 
 ***
 
@@ -242,4 +242,4 @@ optional strict?: boolean;
 
 #### Inherited from
 
-[`RouteDefinition`](RouteDefinition.md).[`strict`](RouteDefinition.md#strict)
+[`RouteOptions`](../../Route/interfaces/RouteOptions.md).[`strict`](../../Route/interfaces/RouteOptions.md#strict)

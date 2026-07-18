@@ -27,7 +27,7 @@ name: string;
 ### params?
 
 ```ts
-optional params?: Record<string, string>;
+optional params?: Record<string, string | number | boolean>;
 ```
 
 ***
@@ -35,5 +35,5 @@ optional params?: Record<string, string>;
 ### query?
 
 ```ts
-optional query?: Record<string, string>;
+optional query?: Record<string, string | number | boolean>;
 ```

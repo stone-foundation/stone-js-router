@@ -4,6 +4,8 @@ Utility function to define multiple routes.
 
 ## Param
 
+**routes**
+
 An array of route definitions, each containing path, module, and options.
 
 ## Call Signature

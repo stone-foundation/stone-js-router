@@ -1,152 +1,131 @@
-import { Mock } from 'vitest'
 import { Route } from '../src/Route'
-import { domainRegex, pathRegex } from '../src/utils'
 import { IIncomingEvent, IOutgoingResponse } from '../src/declarations'
 import { MatcherOptions, hostMatcher, methodMatcher, protocolMatcher, uriMatcher } from '../src/matchers'
 
-// Mock dependencies
-vi.mock('../src/Route', () => ({
-  Route: vi.fn().mockImplementation(() => ({
-    getOption: vi.fn(),
-    isHttpOnly: vi.fn(),
-    isHttpsOnly: vi.fn(),
-    options: {}
-  }))
-}))
+// Behavioural tests: exercise the real pattern -> regex -> match chain (no mocking of
+// `utils`/`Route`), so a regression in the compiled regexes is actually caught here.
+const makeRoute = (options: any): Route<IIncomingEvent, IOutgoingResponse> =>
+  Route.create<IIncomingEvent, IOutgoingResponse>({ handler: () => ({} as any), ...options })
 
-vi.mock('../src/utils', () => ({
-  domainRegex: vi.fn(),
-  pathRegex: vi.fn()
-}))
+const makeEvent = (over: Partial<IIncomingEvent> = {}): IIncomingEvent => ({
+  host: 'example.com',
+  method: 'GET',
+  isSecure: true,
+  decodedPathname: '/test',
+  pathname: '/test',
+  ...over
+} as unknown as IIncomingEvent)
 
 describe('Matchers', () => {
-  let mockEvent: IIncomingEvent
-  let mockRoute: Route<IIncomingEvent, IOutgoingResponse>
-  let matcherOptions: MatcherOptions<IIncomingEvent, IOutgoingResponse>
-
-  beforeEach(() => {
-    mockEvent = {
-      host: 'example.com',
-      method: 'GET',
-      isSecure: true,
-      decodedPathname: '/test',
-      pathname: '/test'
-    } as unknown as IIncomingEvent
-
-    mockRoute = new Route({ path: '/test/:id' } as any)
-
-    matcherOptions = { event: mockEvent, route: mockRoute }
-  })
-
   describe('hostMatcher', () => {
-    it('should return true if domainRegex is undefined', () => {
-      (domainRegex as Mock).mockReturnValue(undefined)
-
-      const result = hostMatcher(matcherOptions)
-      expect(result).toBe(true)
-      expect(domainRegex).toHaveBeenCalledWith(mockRoute.options)
+    it('should return true when the route has no domain constraint', () => {
+      const options: MatcherOptions<IIncomingEvent, IOutgoingResponse> = {
+        event: makeEvent(),
+        route: makeRoute({ method: 'GET', path: '/test' })
+      }
+      expect(hostMatcher(options)).toBe(true)
     })
 
-    it('should return true if host matches domainRegex', () => {
-      (domainRegex as Mock).mockReturnValue({ test: vi.fn().mockReturnValue(true) })
-
-      const result = hostMatcher(matcherOptions)
-      expect(result).toBe(true)
-      expect(domainRegex).toHaveBeenCalledWith(mockRoute.options)
+    it('should return true when the host matches the domain constraint', () => {
+      const options: MatcherOptions<IIncomingEvent, IOutgoingResponse> = {
+        event: makeEvent({ host: 'api.example.com' }),
+        route: makeRoute({ method: 'GET', path: '/test', domain: '{tenant}.example.com' })
+      }
+      expect(hostMatcher(options)).toBe(true)
     })
 
-    it('should return false if host does not match domainRegex', () => {
-      (domainRegex as Mock).mockReturnValue({ test: vi.fn().mockReturnValue(false) })
-
-      const result = hostMatcher(matcherOptions)
-      expect(result).toBe(false)
-      expect(domainRegex).toHaveBeenCalledWith(mockRoute.options)
+    it('should return false when the host does not match the domain constraint', () => {
+      const options: MatcherOptions<IIncomingEvent, IOutgoingResponse> = {
+        event: makeEvent({ host: 'api.evil.com' }),
+        route: makeRoute({ method: 'GET', path: '/test', domain: '{tenant}.example.com' })
+      }
+      expect(hostMatcher(options)).toBe(false)
     })
   })
 
   describe('methodMatcher', () => {
     it('should return true if route method matches event method', () => {
-      mockRoute.getOption = vi.fn().mockReturnValue('GET')
-
-      const result = methodMatcher(matcherOptions)
-      expect(result).toBe(true)
-      expect(mockRoute.getOption).toHaveBeenCalledWith('method')
+      const options: MatcherOptions<IIncomingEvent, IOutgoingResponse> = {
+        event: makeEvent({ method: 'GET' }),
+        route: makeRoute({ method: 'GET', path: '/test' })
+      }
+      expect(methodMatcher(options)).toBe(true)
     })
 
     it('should return false if route method does not match event method', () => {
-      mockRoute.getOption = vi.fn().mockReturnValue('POST')
-
-      const result = methodMatcher(matcherOptions)
-      expect(result).toBe(false)
-      expect(mockRoute.getOption).toHaveBeenCalledWith('method')
+      const options: MatcherOptions<IIncomingEvent, IOutgoingResponse> = {
+        event: makeEvent({ method: 'POST' }),
+        route: makeRoute({ method: 'GET', path: '/test' })
+      }
+      expect(methodMatcher(options)).toBe(false)
     })
   })
 
   describe('protocolMatcher', () => {
-    it('should return false if route isHttpOnly and event is secure', () => {
-      mockRoute.getOption = vi.fn().mockReturnValue('force-http')
-      // @ts-expect-error - isSecure is read-only
-      mockEvent.isSecure = true
-
-      const result = protocolMatcher(matcherOptions)
-      expect(result).toBe(false)
-      expect(mockRoute.getOption).toHaveBeenCalled()
+    it('should return false if route is force-http and event is secure', () => {
+      const options: MatcherOptions<IIncomingEvent, IOutgoingResponse> = {
+        event: makeEvent({ isSecure: true }),
+        route: makeRoute({ method: 'GET', path: '/test', protocolPolicy: 'force-http' })
+      }
+      expect(protocolMatcher(options)).toBe(false)
     })
 
-    it('should return true if route isHttpOnly and event is not secure', () => {
-      mockRoute.getOption = vi.fn().mockReturnValue('http')
-      // @ts-expect-error - isSecure is read-only
-      mockEvent.isSecure = false
-
-      const result = protocolMatcher(matcherOptions)
-      expect(result).toBe(true)
-      expect(mockRoute.getOption).toHaveBeenCalled()
+    it('should return true if route is force-http and event is not secure', () => {
+      const options: MatcherOptions<IIncomingEvent, IOutgoingResponse> = {
+        event: makeEvent({ isSecure: false }),
+        route: makeRoute({ method: 'GET', path: '/test', protocolPolicy: 'force-http' })
+      }
+      expect(protocolMatcher(options)).toBe(true)
     })
 
-    it('should return true if route isHttpsOnly and event is secure', () => {
-      mockRoute.getOption = vi.fn().mockReturnValue('https')
-      // @ts-expect-error - isSecure is read-only
-      mockEvent.isSecure = true
-
-      const result = protocolMatcher(matcherOptions)
-      expect(result).toBe(true)
-      expect(mockRoute.getOption).toHaveBeenCalled()
+    it('should return true if route is force-https and event is secure', () => {
+      const options: MatcherOptions<IIncomingEvent, IOutgoingResponse> = {
+        event: makeEvent({ isSecure: true }),
+        route: makeRoute({ method: 'GET', path: '/test', protocolPolicy: 'force-https' })
+      }
+      expect(protocolMatcher(options)).toBe(true)
     })
 
-    it('should return false if route isHttpsOnly and event is not secure', () => {
-      mockRoute.getOption = vi.fn().mockReturnValue('force-https')
-      // @ts-expect-error - isSecure is read-only
-      mockEvent.isSecure = false
-
-      const result = protocolMatcher(matcherOptions)
-      expect(result).toBe(false)
-      expect(mockRoute.getOption).toHaveBeenCalled()
+    it('should return false if route is force-https and event is not secure', () => {
+      const options: MatcherOptions<IIncomingEvent, IOutgoingResponse> = {
+        event: makeEvent({ isSecure: false }),
+        route: makeRoute({ method: 'GET', path: '/test', protocolPolicy: 'force-https' })
+      }
+      expect(protocolMatcher(options)).toBe(false)
     })
 
     it('should return true if no protocol restrictions are set', () => {
-      mockRoute.getOption = vi.fn().mockReturnValue(undefined)
-
-      const result = protocolMatcher(matcherOptions)
-      expect(result).toBe(true)
-      expect(mockRoute.getOption).toHaveBeenCalled()
+      const options: MatcherOptions<IIncomingEvent, IOutgoingResponse> = {
+        event: makeEvent(),
+        route: makeRoute({ method: 'GET', path: '/test' })
+      }
+      expect(protocolMatcher(options)).toBe(true)
     })
   })
 
   describe('uriMatcher', () => {
-    it('should return true if pathRegex matches event pathname', () => {
-      (pathRegex as Mock).mockReturnValue({ test: vi.fn().mockReturnValue(true) })
-
-      const result = uriMatcher({ event: { ...mockEvent, decodedPathname: undefined } as any, route: mockRoute })
-      expect(result).toBe(true)
-      expect(pathRegex).toHaveBeenCalledWith(mockRoute.options)
+    it('should return true if the path regex matches the event pathname', () => {
+      const options: MatcherOptions<IIncomingEvent, IOutgoingResponse> = {
+        event: makeEvent({ decodedPathname: '/test/42', pathname: '/test/42' }),
+        route: makeRoute({ method: 'GET', path: '/test/:id' })
+      }
+      expect(uriMatcher(options)).toBe(true)
     })
 
-    it('should return false if pathRegex does not match event pathname', () => {
-      (pathRegex as Mock).mockReturnValue({ test: vi.fn().mockReturnValue(false) })
+    it('should fall back to pathname when decodedPathname is undefined', () => {
+      const options: MatcherOptions<IIncomingEvent, IOutgoingResponse> = {
+        event: makeEvent({ decodedPathname: undefined, pathname: '/test/42' }),
+        route: makeRoute({ method: 'GET', path: '/test/:id' })
+      }
+      expect(uriMatcher(options)).toBe(true)
+    })
 
-      const result = uriMatcher(matcherOptions)
-      expect(result).toBe(false)
-      expect(pathRegex).toHaveBeenCalledWith(mockRoute.options)
+    it('should return false if the path regex does not match the event pathname', () => {
+      const options: MatcherOptions<IIncomingEvent, IOutgoingResponse> = {
+        event: makeEvent({ decodedPathname: '/other', pathname: '/other' }),
+        route: makeRoute({ method: 'GET', path: '/test/:id' })
+      }
+      expect(uriMatcher(options)).toBe(false)
     })
   })
 })

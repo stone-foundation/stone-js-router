@@ -4,9 +4,13 @@ Represents an event handler.
 
 ## Param
 
+**IncomingEventType**
+
 The type representing the incoming event.
 
 ## Param
+
+**OutgoingResponseType**
 
 The type representing the outgoing response.
 

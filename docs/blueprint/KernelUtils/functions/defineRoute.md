@@ -4,21 +4,31 @@ Utility function to define a route.
 
 ## Param
 
+**module**
+
 The EventHandler module.
 
 ## Param
+
+**options**
 
 Route definition options.
 
 ## Param
 
+**options.isFactory**
+
 Indicates that the handler is a factory function.
 
 ## Param
 
+**options.isClass**
+
 Indicates that the handler is a class.
 
 ## Param
+
+**options.action**
 
 The action name for the event handler.
 

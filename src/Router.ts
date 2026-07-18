@@ -18,7 +18,7 @@ import { RouterError } from './errors/RouterError'
 import { RouteCollection } from './RouteCollection'
 import { RouteNotFoundError } from './errors/RouteNotFoundError'
 import { FunctionalEventListener, isObjectLikeModule } from '@stone-js/core'
-import { DELETE, GET, NAVIGATION_EVENT, OPTIONS, PATCH, POST, PUT } from './constants'
+import { DELETE, GET, MAX_URI_LENGTH, NAVIGATION_EVENT, OPTIONS, PATCH, POST, PUT } from './constants'
 import { isAliasPipe, isClassPipe, isFactoryPipe, MetaPipe, MixedPipe, PipeInstance, Pipeline, PipelineOptions } from '@stone-js/pipeline'
 
 /**
@@ -430,9 +430,29 @@ export class Router<
       RouteEvent.create({ type: RouteEvent.ROUTING, source: this, metadata: { event } })
     )
 
+    this.ensureUriWithinLimit(event)
+
     this.currentRoute = this.routes.match(event)
 
     return this.currentRoute
+  }
+
+  /**
+   * Rejects abnormally long request URIs before any matching happens.
+   *
+   * Defence-in-depth: the segment regexes are already linear, but bounding the input
+   * length caps the cost of any residual backtracking in user-supplied rules.
+   *
+   * @param event - The incoming event.
+   * @throws {RouteNotFoundError} If the URI exceeds the configured maximum length.
+   */
+  private ensureUriWithinLimit (event: IncomingEventType): void {
+    const maxLength = this.routerOptions.maxUriLength ?? MAX_URI_LENGTH
+    const uri = event.getUri?.(true) ?? event.decodedPathname ?? event.pathname
+
+    if (typeof uri === 'string' && uri.length > maxLength) {
+      throw new RouteNotFoundError(`Request URI exceeds the maximum allowed length of ${maxLength} characters.`)
+    }
   }
 
   /**
@@ -460,7 +480,9 @@ export class Router<
    * @throws {RouterError} If called outside a browser environment.
    */
   navigate (pathOrOptions: string | NavigateOptions, replace?: boolean): void {
-    if (window === undefined) {
+    // `typeof` guard: referencing a bare, undeclared `window` in Node throws a
+    // ReferenceError before the check runs, defeating the universality guard.
+    if (typeof window === 'undefined') {
       throw new RouterError('This method can only be used in a browser environment')
     }
 

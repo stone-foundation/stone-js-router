@@ -29,7 +29,7 @@ import { methodMatcher } from './matchers'
 import { RouterError } from './errors/RouterError'
 import { RouteNotFoundError } from './errors/RouteNotFoundError'
 import { isFunctionPipe, MetaPipe, MixedPipe } from '@stone-js/pipeline'
-import { isMetaComponentModule, uriConstraints, uriRegex } from './utils'
+import { domainRegex, isMetaComponentModule, pathRegex, uriConstraints, uriRegex } from './utils'
 
 /**
  * Defines the options for creating a `Route` instance.
@@ -63,6 +63,15 @@ export class Route<IncomingEventType extends IIncomingEvent = IIncomingEvent, Ou
   private readonly uriConstraints: Array<Partial<RouteSegmentConstraint>>
 
   /**
+   * Regexes are compiled once, at Route construction (Setup dimension), and reused
+   * on every request. They are never recompiled per match, which removes the main
+   * per-request cost and aligns the router with its serverless promise.
+   */
+  private readonly uriRegex: RegExp
+  private readonly pathRegex: RegExp
+  private readonly domainRegex?: RegExp
+
+  /**
    * Factory method for creating a route instance.
    *
    * @param options - Configuration options for the route.
@@ -86,6 +95,12 @@ export class Route<IncomingEventType extends IIncomingEvent = IIncomingEvent, Ou
 
     this.matchers = []
     this.uriConstraints = uriConstraints(options)
+
+    // Compile once at setup. A malformed user rule surfaces here (fail-fast) rather
+    // than on the first request.
+    this.uriRegex = uriRegex(options)
+    this.pathRegex = pathRegex(options)
+    this.domainRegex = domainRegex(options)
   }
 
   /**
@@ -380,6 +395,55 @@ export class Route<IncomingEventType extends IIncomingEvent = IIncomingEvent, Ou
   }
 
   /**
+   * Returns the compiled regex matching the full URI (domain + path).
+   *
+   * Used to extract parameter values via named capture groups.
+   *
+   * @returns The precompiled URI regex.
+   */
+  getUriRegex (): RegExp {
+    return this.uriRegex
+  }
+
+  /**
+   * Returns the compiled regex matching the path only.
+   *
+   * @returns The precompiled path regex.
+   */
+  getPathRegex (): RegExp {
+    return this.pathRegex
+  }
+
+  /**
+   * Returns the compiled regex matching the domain, or `undefined` when the route
+   * has no domain constraint.
+   *
+   * @returns The precompiled domain regex or `undefined`.
+   */
+  getDomainRegex (): RegExp | undefined {
+    return this.domainRegex
+  }
+
+  /**
+   * Computes a deterministic specificity score for the route.
+   *
+   * Higher is more specific. Static segments outrank required parameters, which
+   * outrank optional parameters, which outrank catch-all (`*`/`+`) wildcards. This
+   * lets the collection order routes by specificity independently of their
+   * declaration order (e.g. `/users/new` wins over `/users/:id`).
+   *
+   * @returns The specificity score.
+   */
+  getScore (): number {
+    return this.uriConstraints.reduce((score, constraint) => {
+      if (constraint.param === undefined) { return score + 4 } // static segment or domain
+      if (constraint.quantifier === '*' || constraint.quantifier === '+') { return score + 1 } // catch-all
+      if (constraint.optional === true) { return score + 2 } // optional param
+      return score + 3 // required param
+    }, 0)
+  }
+
+  /**
    * Checks if the provided event matches the route.
    *
    * @param event - The incoming event to check against the route.
@@ -433,33 +497,71 @@ export class Route<IncomingEventType extends IIncomingEvent = IIncomingEvent, Ou
     // Helper to construct hash value
     const formatHash = (hash: string): string => hash.length > 0 ? (hash.startsWith('#') ? hash : `#${hash}`) : ''
 
-    // Build query parameters
-    const queryParams = new URLSearchParams(
-      Object.entries(params)
+    // Build query parameters (params that are not route constraints + explicit query).
+    // Values are stringified so falsy values (0, false, '') survive.
+    const queryParams = new URLSearchParams([
+      ...Object.entries(params)
         .filter(([name]) => !this.uriConstraints.some(constraint => constraint.param === name))
-        .concat(Object.entries(query))
-    ).toString()
+        .map(([name, value]): [string, string] => [name, String(value)]),
+      ...Object.entries(query).map(([name, value]): [string, string] => [name, String(value)])
+    ]).toString()
 
-    // Build path from URI constraints
-    const path = this.uriConstraints.reduce((prevPath, constraint): string => {
-      const paramValue = params[constraint.param ?? ''] ?? constraint.default
+    let domainPart = ''
+    let path = '/'
 
-      // Validate required parameters
-      if (constraint.param !== undefined && constraint.optional !== true && paramValue === undefined) {
+    for (const constraint of this.uriConstraints) {
+      const hasParam = constraint.param !== undefined
+      const paramValue = hasParam ? (params[constraint.param as string] ?? constraint.default) : undefined
+
+      // Validate required parameters (`0`, `false`, `''` are valid values, only `null`/`undefined` are missing).
+      if (hasParam && constraint.optional !== true && (paramValue === undefined || paramValue === null)) {
         throw new RouterError(`Missing required parameter "${String(constraint.param)}"`)
       }
 
-      // Handle domain constraints
-      if (withDomain && constraint.suffix !== undefined) {
-        return [protocol ?? this.protocol, '://', paramValue, constraint.suffix, prevPath].filter(Boolean).join('')
+      // Domain constraints carry a `suffix`; they are prepended only when a full URL is requested.
+      if (constraint.suffix !== undefined) {
+        if (withDomain) {
+          const sub = hasParam && paramValue !== undefined && paramValue !== null ? this.encodeParam(paramValue, constraint) : ''
+          domainPart = `${protocol ?? this.protocol}://${sub}${String(constraint.suffix)}`
+        }
+        continue
       }
 
-      // Append path segments
-      return [prevPath, constraint.prefix, constraint.param !== undefined ? paramValue : constraint.match, '/'].filter(Boolean).join('')
-    }, '/').replace(/(\/{2,})/g, '/').replace(':/', '://') // Replace redundant slashes
+      // Path segments.
+      if (hasParam) {
+        if (paramValue === undefined || paramValue === null) { continue } // optional & absent
+        path += `${constraint.prefix ?? ''}${this.encodeParam(paramValue, constraint)}/`
+      } else if (constraint.match !== undefined) {
+        path += `${String(constraint.match)}/`
+      }
+    }
 
-    // Combine path, query, and hash
-    return [path, queryParams?.length > 0 && `?${queryParams}`, formatHash(hash)].filter(Boolean).join('')
+    // Collapse redundant slashes in the path only (never touches the domain's `://`).
+    path = path.replace(/\/{2,}/g, '/')
+
+    // Combine domain, path, query, and hash.
+    return [`${domainPart}${path}`, queryParams.length > 0 ? `?${queryParams}` : '', formatHash(hash)]
+      .filter(part => part.length > 0)
+      .join('')
+  }
+
+  /**
+   * URL-encodes a parameter value for safe insertion into a generated URL.
+   *
+   * Catch-all parameters (`*`/`+`) legitimately contain `/`, so each of their
+   * sub-segments is encoded independently and rejoined; every other value is fully
+   * encoded. This prevents path traversal (`../`) and query/fragment injection
+   * (`?`, `#`) through generated links and `navigate()`.
+   *
+   * @param value - The raw parameter value.
+   * @param constraint - The constraint the value belongs to.
+   * @returns The encoded value.
+   */
+  private encodeParam (value: unknown, constraint: Partial<RouteSegmentConstraint>): string {
+    const raw = String(value)
+    return constraint.quantifier === '*' || constraint.quantifier === '+'
+      ? raw.split('/').map(encodeURIComponent).join('/')
+      : encodeURIComponent(raw)
   }
 
   /**
@@ -528,14 +630,14 @@ export class Route<IncomingEventType extends IIncomingEvent = IIncomingEvent, Ou
 
     const params: RouteParams = {}
 
-    const matches = event
-      .getUri(this.hasDomain())
-      ?.match(uriRegex(this.options))
-      ?.filter((_v, i) => i > 0)
-      .map(v => !isNaN(Number(v)) ? parseFloat(v) : v)
+    // Bind by named capture group (`p0`, `p1`, ...) rather than by flat positional
+    // index: this is immune to extra capture groups a user rule might introduce, and
+    // keeps values as raw strings (no destructive numeric coercion of ids like
+    // '00123' or values above Number.MAX_SAFE_INTEGER).
+    const groups = event.getUri(this.hasDomain())?.match(this.uriRegex)?.groups ?? {}
 
     for (const [i, constraint] of this.uriConstraints.filter(({ param }) => param !== undefined).entries()) {
-      let value: unknown = matches?.[i]
+      let value: unknown = groups[`p${i}`]
 
       if (constraint.alias !== undefined) {
         params[constraint.alias] = value ?? constraint.default
