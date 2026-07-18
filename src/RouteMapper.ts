@@ -188,7 +188,9 @@ export class RouteMapper<
     return {
       ...definition as RouteOptions<IncomingEventType, OutgoingResponseType>,
       children: undefined,
-      protocolPolicy: this.options.protocolPolicy,
+      // Per-route value wins, global (`stone.router.protocolPolicy`) is the fallback —
+      // symmetric with `strict`. Previously the global value always overrode the route's.
+      protocolPolicy: definition.protocolPolicy ?? this.options.protocolPolicy,
       strict: definition.strict ?? this.options.strict,
       rules: { ...this.options.rules, ...definition.rules },
       bindings: { ...this.options.bindings, ...definition.bindings },

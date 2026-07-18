@@ -1,9 +1,12 @@
 import { Route } from '../src/Route'
 import { Router } from '../src/Router'
+import { RouteMapper } from '../src/RouteMapper'
+import { CallableDispatcher } from '../src/dispatchers/CallableDispatcher'
 import { RouteCollection } from '../src/RouteCollection'
 import { RouterError } from '../src/errors/RouterError'
 import { routerBlueprint } from '../src/options/RouterBlueprint'
 import { pathRegex, uriRegex, toNonCapturingSource } from '../src/utils'
+import { uriMatcher, hostMatcher, methodMatcher, protocolMatcher } from '../src/matchers'
 import { RouteNotFoundError } from '../src/errors/RouteNotFoundError'
 
 /**
@@ -208,6 +211,83 @@ describe('Router hardening (0.8.0)', () => {
       const router = makeRouter(2048)
       const route = await router.findRoute(makeEvent({ pathname: '/x', decodedPathname: '/x' }))
       expect(route).toBeInstanceOf(Route)
+    })
+  })
+
+  describe('global vs per-route config (protocolPolicy / prefix)', () => {
+    const mapper = (opts: any): RouteMapper => RouteMapper.create({
+      maxDepth: 5,
+      matchers: [uriMatcher, hostMatcher, methodMatcher, protocolMatcher],
+      dispatchers: { callable: CallableDispatcher },
+      ...opts
+    })
+
+    it('applies the global protocolPolicy to every route', () => {
+      const [route] = mapper({ protocolPolicy: 'force-https' }).toRoutes([
+        { path: '/a', method: 'GET', handler: () => ({} as any) }
+      ])
+      expect(route.getOption('protocolPolicy')).toBe('force-https')
+    })
+
+    it('lets a route override the global protocolPolicy (per-route wins, global is fallback)', () => {
+      const routes = mapper({ protocolPolicy: 'force-https' }).toRoutes([
+        { path: '/secure', method: 'GET', handler: () => ({} as any) },
+        { path: '/open', method: 'GET', protocolPolicy: 'force-http', handler: () => ({} as any) }
+      ])
+      const byPath = (p: string): Route => routes.find(r => r.getOption('path') === p && r.getOption('method') === 'GET') as Route
+      expect(byPath('/secure').getOption('protocolPolicy')).toBe('force-https') // inherits global
+      expect(byPath('/open').getOption('protocolPolicy')).toBe('force-http') // per-route wins
+    })
+
+    it('applies the global prefix to every route path', () => {
+      const [route] = mapper({ prefix: '/api' }).toRoutes([
+        { path: '/users', method: 'GET', handler: () => ({} as any) }
+      ])
+      expect(route.getOption('path')).toBe('/api/users')
+    })
+  })
+
+  describe('named routes match by path (regression: "name -> 404")', () => {
+    it('a route with a name still matches its own path', () => {
+      const collection = RouteCollection.create()
+      collection.add(Route.create({
+        method: 'GET',
+        name: 'patate',
+        path: '/editions/current/competition/registration',
+        handler: () => ({} as any)
+      }))
+      const matched = collection.match(makeEvent({
+        pathname: '/editions/current/competition/registration',
+        decodedPathname: '/editions/current/competition/registration'
+      }))
+      expect(matched.getOption('name')).toBe('patate')
+    })
+  })
+
+  describe('middleware options & priority', () => {
+    const makeRouter = (globalMw: any[], routeMw: any[]): Router => Router.create({
+      ...routerBlueprint.stone.router,
+      middleware: globalMw,
+      definitions: [{ path: '/x', method: 'GET', middleware: routeMw, handler: () => ({} as any) }]
+    } as any)
+
+    it('preserves meta-pipe params and priority through gathering', () => {
+      const mw = { module: (_e: any, next: any): any => next(_e), params: [{ role: 'admin' }], priority: 1 }
+      const router = makeRouter([], [mw])
+      const route = router.getRoutes().getRoutes()[0]
+      const gathered = router.gatherRouteMiddleware(route)
+      expect(gathered).toContainEqual(mw)
+      expect((gathered[0] as any).params).toEqual([{ role: 'admin' }])
+      expect((gathered[0] as any).priority).toBe(1)
+    })
+
+    it('gathers global middleware before route-local middleware', () => {
+      const globalMw = (_e: any, next: any): any => next(_e)
+      const localMw = (_e: any, next: any): any => next(_e)
+      const router = makeRouter([globalMw], [localMw])
+      const route = router.getRoutes().getRoutes()[0]
+      const gathered = router.gatherRouteMiddleware(route)
+      expect(gathered.indexOf(globalMw)).toBeLessThan(gathered.indexOf(localMw))
     })
   })
 
